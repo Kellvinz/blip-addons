@@ -9,7 +9,7 @@ import {
   Paragraph,
 } from '@components';
 
-import { SketchPicker } from 'react-color';
+import { SketchPicker, BlockPicker, CompactPicker, TwitterPicker } from 'react-color';
 import * as React from 'react';
 import { Tag } from '~/types';
 import { PRESET_COLORS } from '@features/EditBlocks/Colors';
@@ -61,21 +61,22 @@ export const TagsConfig = (): JSX.Element => {
                 <BlipAccordionButton title={tag.name} />
                 <span
                   style={{
-                    width: '18px',
+                    width: '26px',
                     borderRadius: '50%',
                     height: '100%',
                     backgroundColor: tag.color,
                   }}
                 >
-                    teste
+                    -
                 </span>
               </Flex>
             </BlipAccordionHeader>
             <BlipAccordionBody>
               <div>
-                <SketchPicker
+                <TwitterPicker
+                    width="450px"
                   color={tag.color}
-                  presetColors={PRESET_COLORS}
+                  colors={PRESET_COLORS}
                 />
               </div>
             </BlipAccordionBody>
