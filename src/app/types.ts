@@ -62,3 +62,8 @@ export type ConditionViewModel = {
   values: any[];
   variable: string;
 }
+
+export type Tag = {
+  name: string;
+  color: string;
+}
