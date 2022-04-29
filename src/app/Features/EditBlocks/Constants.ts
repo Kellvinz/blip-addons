@@ -54,3 +54,13 @@ export const PRESET_COLORS = [
   '#202C44',
   '#3A4A65',
 ];
+
+export const BLIPS_SIDEBAR_ID = 'blips-extension-sidebar-block-edit';
+export const MAIN_CONTENT_AREA = 'main-content-area';
+export const BUILDER_NODE_MENU = 'builder-node-menu';
+export const CONTEXT_MENU_CLASS = 'builder-node-context-menu';
+export const CONTEXT_MENU_OPTION_CLASSES = 'ph3 pv1 bp-fs-7 tc';
+export const BUILDER_HTML_BLOCK_TAG = 'builder-node';
+export const DELETE_OPTION_BLOCK_POSITION = 2;
+export const BUILDER_NODE_TAG_NAME = 'BUILDER-NODE';
+export const DIAGRAM_CONTAINER = '#diagramContainer';

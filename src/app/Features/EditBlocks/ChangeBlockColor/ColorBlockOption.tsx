@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SketchPicker } from 'react-color';
 
-import { PRESET_COLORS } from '../Colors';
+import * as Constants from '../Constants';
 
 export type ColorBlockOptionProps = {
   id: string;
@@ -28,7 +28,7 @@ export const ColorBlockOption = ({
       <SketchPicker
         color={color}
         onChange={handleChange}
-        presetColors={PRESET_COLORS}
+        presetColors={Constants.PRESET_COLORS}
       />
     </div>
   );
