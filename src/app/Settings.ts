@@ -10,6 +10,40 @@ export const Settings = {
   betaKey: ['beta'],
   devKey: ['dev'],
   personalSnippets: [],
+  defaultTags: [
+    {
+      name: 'Execute script',
+      color: '#FF961E',
+    },
+    {
+      name: 'Event Tracking',
+      color: '#61D36F',
+    },
+    {
+      name: 'Manage distribution list',
+      color: '#1EDEFF',
+    },
+    {
+      name: 'Redirect to service',
+      color: '#1EA1FF',
+    },
+    {
+      name: 'Set contact',
+      color: '#FF1E90',
+    },
+    {
+      name: 'Process HTTP',
+      color: '#7762E3',
+    },
+    {
+      name: 'Set variable',
+      color: '#FF4A1E',
+    },
+    {
+      name: 'Process command',
+      color: '#FC91AE',
+    },
+  ]
 };
 
 export const mergeSettings = (newSettings: Partial<typeof Settings>): void => {
