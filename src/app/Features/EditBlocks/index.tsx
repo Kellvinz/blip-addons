@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import pThrottle from 'p-throttle';
 
 import { interceptFunction } from '~/Utils';
 import { BaseFeature } from '../BaseFeature';
@@ -21,21 +22,15 @@ import { EditBlockOption } from './EditBlockOption';
 import { ChangeBlockFormat } from './ChangeBlockFormat';
 import { ChangeBlockColor } from './ChangeBlockColor';
 import { ChangeTextBlockColor } from './ChangeTextColor';
-
-const BLIPS_SIDEBAR_ID = 'blips-extension-sidebar-block-edit';
-const BUILDER_MAIN_AEREA_ID = 'main-content-area';
-const BUILDER_HTML_MENU_BLOCK_CLASS = 'builder-node-menu';
-const BUILDER_HTML_MENU_BLOCK_LIST_CLASS = 'builder-node-context-menu';
-const DEFALT_CLASS_BUILDER_HTML_MENU_BLOCK_LIST_ELEMENT = 'ph3 pv1 bp-fs-7 tc';
-const BUILDER_HTML_BLOCK_TAG = 'builder-node';
-const DELETE_OPTION_BLOCK_POSITION = 2;
+import * as Constants from './Constants';
 
 export class EditBlock extends BaseFeature {
   public static shouldRunOnce = true;
+  private observer: MutationObserver;
   private id = '';
 
   private getSidebar(): HTMLElement {
-    return document.getElementById(BLIPS_SIDEBAR_ID);
+    return document.getElementById(Constants.BLIPS_SIDEBAR_ID);
   }
 
   private restoreBlockStyle = (): void => {
@@ -49,7 +44,7 @@ export class EditBlock extends BaseFeature {
       // Creates and append the sidebar to the dom
       const blipsSidebar = document.createElement('div');
 
-      blipsSidebar.setAttribute('id', BLIPS_SIDEBAR_ID);
+      blipsSidebar.setAttribute('id', Constants.BLIPS_SIDEBAR_ID);
       ReactDOM.render(
         <BlockStyleSidebar
           id={this.id}
@@ -62,7 +57,7 @@ export class EditBlock extends BaseFeature {
         blipsSidebar
       );
 
-      const mainArea = document.getElementById(BUILDER_MAIN_AEREA_ID);
+      const mainArea = document.getElementById(Constants.MAIN_CONTENT_AREA);
       mainArea.appendChild(blipsSidebar);
 
       // Waits for a moment and then fades the sidebar in
@@ -117,10 +112,7 @@ export class EditBlock extends BaseFeature {
 
   private createBlockOptionsDiv(): any {
     const blipsDiv = document.createElement('div');
-    blipsDiv.setAttribute(
-      'class',
-      DEFALT_CLASS_BUILDER_HTML_MENU_BLOCK_LIST_ELEMENT
-    );
+    blipsDiv.setAttribute('class', Constants.CONTEXT_MENU_OPTION_CLASSES);
     return blipsDiv;
   }
 
@@ -131,7 +123,7 @@ export class EditBlock extends BaseFeature {
 
   private addChangeFormatOptionOnBlockById(id: string): void {
     const menuOptionsList = document.querySelector(
-      `${BUILDER_HTML_BLOCK_TAG}[id="${id}"]:not(.subflow-block) .${BUILDER_HTML_MENU_BLOCK_CLASS} .${BUILDER_HTML_MENU_BLOCK_LIST_CLASS}`
+      `${Constants.BUILDER_HTML_BLOCK_TAG}[id="${id}"]:not(.subflow-block) .${Constants.BUILDER_NODE_MENU} .${Constants.CONTEXT_MENU_CLASS}`
     );
 
     if (menuOptionsList) {
@@ -146,7 +138,7 @@ export class EditBlock extends BaseFeature {
         );
         menuOptionsList.insertBefore(
           menuOptionElement,
-          menuOptionsList.children[DELETE_OPTION_BLOCK_POSITION]
+          menuOptionsList.children[Constants.DELETE_OPTION_BLOCK_POSITION]
         );
       }
     }
@@ -167,11 +159,46 @@ export class EditBlock extends BaseFeature {
     new ChangeBlockColor().handle();
     new ChangeTextBlockColor().handle();
 
-    interceptFunction('addContentState', () => this.handle());
-    interceptFunction('duplicateStateObject', () => this.handle());
-    interceptFunction('addDeskState', () => this.handle());
+    const isObserverNotDefined = !this.observer;
+
+    if (isObserverNotDefined) {
+      this.watchChanges();
+    }
 
     return true;
+  }
+
+  private hasNewBlock(mutations: MutationRecord[]): boolean {
+    return !!mutations.find((mutation) => {
+      return Array.from(mutation.addedNodes).find(
+        (node) =>
+          (node as HTMLElement).tagName == Constants.BUILDER_NODE_TAG_NAME
+      );
+    });
+  }
+
+  private watchChanges(): void {
+    const throttle = pThrottle({
+      interval: 500,
+      limit: 1,
+    });
+
+    const applyChanges = throttle((mutations: MutationRecord[]) => {
+      const hasNewBlock = this.hasNewBlock(mutations);
+
+      if (hasNewBlock) {
+        this.handle();
+      }
+    });
+
+    this.observer = new MutationObserver(applyChanges);
+    const diagramContainer = document.querySelector(
+      Constants.DIAGRAM_CONTAINER
+    );
+
+    this.observer.observe(diagramContainer, {
+      childList: true,
+    });
   }
 
   /**
