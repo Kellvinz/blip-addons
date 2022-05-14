@@ -1,9 +1,22 @@
 name: 🐛 Bug
 description: Report a bug
-title: '<description>'
 labels: ['bug']
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this bug.
+          - Try to include screenshots, gifs, diagrams or really anything that helps to demonstrate the bug.
+          - Try to write and answer the issue in English.
+          - Be kind and patient.
+
+  - type: checkboxes
+    attributes:
+      label: Verifications
+      options:
+        - label: I'm using the Blip Addons latest version
+
   - type: textarea
     id: context
     attributes:
@@ -16,7 +29,7 @@ body:
     id: environment
     attributes:
       label: Installation
-      description: How did you install Blip Adons?
+      description: How did you install Blip Addons?
       options:
         - Chrome Store
         - Build from source
@@ -24,17 +37,8 @@ body:
     validations:
       required: true
 
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
-      options:
-        - label: I agree to follow this project's Code of Conduct
-          required: true
-
   - type: textarea
-    id: Steps to reproduce
+    id: steps
     attributes:
       label: List of steps to reproduce this bug.
       placeholder: |
