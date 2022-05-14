@@ -5,7 +5,7 @@ import {
   cleanCopiedStates,
   cleanSelectedNodes,
   createNearbyPosition,
-  getBotName,
+  getBotId,
   getFlow,
   selectBlock,
   showSuccessToast,
@@ -42,7 +42,7 @@ export class PasteBlock extends BaseFeature {
        * Don't copy if it's the same bot, as blip automatically deals
        * with it
        */
-      const isSameBot = blipsCopy.originBot === getBotName();
+      const isSameBot = blipsCopy.originBot === getBotId();
 
       if (isSameBot) {
         return;
