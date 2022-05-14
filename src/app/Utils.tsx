@@ -127,8 +127,23 @@ export const getBotId = (): string => {
   return '';
 };
 
+export const getRandom = (max: number): number =>
+  Math.floor(Math.random() * max);
+
 export const createNearbyPosition = (): { left: string; top: string } => {
-  return getController().createNearbyPosition();
+  const canvas = document.querySelector('#canvas') as HTMLElement;
+
+  const left = `${
+    getRandom(200) + canvas.scrollLeft + canvas.offsetWidth / 2
+  }px`;
+  const top = `${
+    getRandom(100) + canvas.scrollTop + canvas.offsetHeight / 2
+  }px`;
+
+  return {
+    left,
+    top,
+  };
 };
 
 export const getSpace = (): any => {
