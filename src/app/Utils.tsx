@@ -117,6 +117,16 @@ export const getBotName = (): string | false => {
   return false;
 };
 
+export const getBotId = (): string => {
+  const controller = getController();
+
+  if (controller.application && controller.application.shortName) {
+    return controller.application.shortName;
+  }
+
+  return '';
+};
+
 export const createNearbyPosition = (): { left: string; top: string } => {
   return getController().createNearbyPosition();
 };
@@ -220,7 +230,7 @@ export const createToast = ({
   toastText,
   toastTitle,
   variant,
-  duration = 1
+  duration = 1,
 }: ToastProps): void => {
   const toast = document.createElement('bds-toast');
 
