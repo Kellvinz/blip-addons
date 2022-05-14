@@ -183,17 +183,9 @@ export const hexToRgb = (hex): any => {
 };
 
 export const getContrastColor = (color: any): string => {
-  const brightness = 1;
+  const yiq = (color.r * 299 + color.g * 587 + color.b * 114) / 1000;
 
-  const r = color.r;
-  const g = color.g;
-  const b = color.b;
-
-  const ir = Math.floor((255 - r) * brightness);
-  const ig = Math.floor((255 - g) * brightness);
-  const ib = Math.floor((255 - b) * brightness);
-
-  return rgbToHex(ir, ig, ib);
+  return yiq >= 128 ? '#000' : '#fff';
 };
 
 export const createOverlay = (): HTMLElement => {
