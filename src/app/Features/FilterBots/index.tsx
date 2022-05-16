@@ -7,7 +7,7 @@ import { Filter } from './Filter';
 import { Settings } from '~/Settings';
 
 const FILTER_ID = 'blip-addons-filter';
-const FILTER_CONTAINER = '.move-bots-button-container';
+const FILTER_CONTAINER = '.chatbots-subheader .flex:last-child';
 
 export class FilterBots extends BaseFeature {
   public static shouldAlwaysClean = true;
@@ -73,8 +73,9 @@ export class FilterBots extends BaseFeature {
       const contactCategory = contact.querySelector(
         '.contact-data small'
       ).innerHTML;
+      const isRouter = contactCategory.startsWith('R');
 
-      if (contactCategory.startsWith('R')) {
+      if (isRouter) {
         const contactCard = contact.querySelector('.card') as HTMLElement;
 
         if (contactCard) {
@@ -89,11 +90,6 @@ export class FilterBots extends BaseFeature {
     this.paintRouters();
 
     if (header) {
-      header.style.display = 'flex';
-      header.style.alignItems = 'center';
-      header.style.justifyContent = 'space-between';
-      header.style.padding = '5px';
-
       if (!this.hasFilter) {
         const filter = document.createElement('div');
 
