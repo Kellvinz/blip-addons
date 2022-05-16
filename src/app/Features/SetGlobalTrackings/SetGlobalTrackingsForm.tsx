@@ -193,7 +193,7 @@ export const SetGlobalTrackingsForm = (): JSX.Element => {
   return (
     <Block>
       <Paragraph>
-        Todos os blocos que contem a ação de tracking terá adição de trackings
+        Todos os blocos que contêm a ação de tracking terão adição de trackings
         globais.
         <br />
         <b>Você ainda precisa publicar o fluxo</b>

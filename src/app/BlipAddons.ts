@@ -14,7 +14,7 @@ const LISTENER_SCRIPT = chrome.runtime.getURL('/js/listener.js');
 const MINIMAL_INTERVAL = 200;
 const MAXIMUM_INTERVAL = 1500;
 
-export class BlipsExtension {
+export class BlipAddons {
   public onReadyCallback: () => any;
 
   public constructor() {

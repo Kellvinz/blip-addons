@@ -5,7 +5,7 @@ import { HOME_ITEM_ID } from '~/Constants';
 export const HomeItem = (): JSX.Element => {
   return (
     <li id={HOME_ITEM_ID} className="relative">
-      <a href="../../home">
+      <a href="/applications">
         <span className="sidebar-title" style={{ marginLeft: 0 }}>
           Home
         </span>
