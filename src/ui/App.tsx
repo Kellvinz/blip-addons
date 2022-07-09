@@ -10,8 +10,8 @@ import { Flex } from '@components/Flex';
 import { ISSUES_URL, REPOSITORY_URL } from '~/Constants';
 
 import { KeywordsConfig } from './pages/KeywordConfig';
-import { SnippetsConfig } from './pages/snippetsConfig';
-import { TagsConfig } from './pages/tagsConfig';
+import { SnippetsConfig } from './pages/SnippetsConfig';
+import { TagsConfig } from './pages/TagsConfig';
 
 const Pages = {
   keywordConfig: {

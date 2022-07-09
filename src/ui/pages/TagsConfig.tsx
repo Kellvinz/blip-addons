@@ -15,45 +15,45 @@ import {
 import { Tag } from '~/types';
 import { ColorPalette } from '@features/AutoTag/ColorPalette';
 import { BdsButton } from 'blip-ds/dist/blip-ds-react';
-import { createConfirmationAlert, removeOverlay } from '~/Utils';
-import { Settings } from '~/Settings';
+import { createConfirmationAlert, removeOverlay, showSuccessToast } from '~/Utils';
+import { setSettings, Settings } from '~/Settings';
+
+const DEFAULT_TAGS: Tag[] = [
+  {
+    name: 'Execute script',
+    color: '#FF961E',
+  },
+  {
+    name: 'Event Tracking',
+    color: '#61D36F',
+  },
+  {
+    name: 'Manage distribution list',
+    color: '#1EDEFF',
+  },
+  {
+    name: 'Redirect to service',
+    color: '#1EA1FF',
+  },
+  {
+    name: 'Set contact',
+    color: '#FF1E90',
+  },
+  {
+    name: 'Process HTTP',
+    color: '#7762E3',
+  },
+  {
+    name: 'Set variable',
+    color: '#FF4A1E',
+  },
+  {
+    name: 'Process command',
+    color: '#FC91AE',
+  },
+]
 
 export const TagsConfig = (): JSX.Element => {
-  const defaultTags: Tag[] = [
-    {
-      name: 'Execute script',
-      color: '#FF961E',
-    },
-    {
-      name: 'Event Tracking',
-      color: '#61D36F',
-    },
-    {
-      name: 'Manage distribution list',
-      color: '#1EDEFF',
-    },
-    {
-      name: 'Redirect to service',
-      color: '#1EA1FF',
-    },
-    {
-      name: 'Set contact',
-      color: '#FF1E90',
-    },
-    {
-      name: 'Process HTTP',
-      color: '#7762E3',
-    },
-    {
-      name: 'Set variable',
-      color: '#FF4A1E',
-    },
-    {
-      name: 'Process command',
-      color: '#FC91AE',
-    },
-  ];
-
   const alertBody: JSX.Element = (
     <div>
       Você tem certeza que gostaria de executar esta ação? Isso irá alterar as tags 
@@ -64,15 +64,29 @@ export const TagsConfig = (): JSX.Element => {
   const [colors, setColors] = React.useState(Settings.defaultTags);
 
   const updateSettings = (): void => {
+    console.log(colors);
+
+    // setSettings({
+    //   defaultTags: [...colors],
+    // });
+
+    // createConfirmationAlert({
+    //   bodyMessage: alertBody,
+
+    //   onCancel: removeOverlay,
+    //   onConfirm: removeOverlay
+    // });
+
     return;
   };
 
   const setDefaultTags = (): void => {
     createConfirmationAlert({
       bodyMessage: alertBody,
+
       onCancel: removeOverlay,
       onConfirm: () => {
-        setColors([...defaultTags]);
+        setColors([...DEFAULT_TAGS]);
         removeOverlay();
       },
     });
@@ -89,7 +103,7 @@ export const TagsConfig = (): JSX.Element => {
       return (
         <>
           <BlipAccordionItem borderTop={0} key={index}>
-            <BlipAccordionHeader>
+            <BlipAccordionHeader key={index}>
               <Flex className="justify-between" alignItems="center">
                 <BlipAccordionButton title={tag.name} />
                 <Circle width={20} height={20} backgroundColor={tag.color} />
@@ -112,19 +126,18 @@ export const TagsConfig = (): JSX.Element => {
 
   return (
     <Block padding={0}>
-      <Paragraph>Algum titulo legal sobre TAGS</Paragraph>
+      <Paragraph>Modifique as suas tags e torne elas unicas!</Paragraph>
 
       <Block marginTop={2} marginBottom={2}>
         <Block width="100%">
           <BlipAccordion>{getAccorionItems(colors)}</BlipAccordion>
         </Block>
         <HorizontalStack marginTop={2}>
-          <BdsButton variant="delete" onClick={setDefaultTags}>
-            Resetar
-          </BdsButton>
-
           <BdsButton type="submit" variant="primary" onClick={updateSettings}>
             Salvar
+          </BdsButton>
+          <BdsButton variant="delete" onClick={setDefaultTags}>
+            Resetar
           </BdsButton>
         </HorizontalStack>
       </Block>
