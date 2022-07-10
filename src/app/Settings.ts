@@ -12,37 +12,41 @@ export const Settings = {
   personalSnippets: [],
   defaultTags: [
     {
-      name: 'Execute script',
+      name: 'ExecuteScript',
       color: '#FF961E',
     },
     {
-      name: 'Event Tracking',
+      name: 'TrackEvent',
       color: '#61D36F',
     },
     {
-      name: 'Manage distribution list',
+      name: 'ManageList',
       color: '#1EDEFF',
     },
     {
-      name: 'Redirect to service',
+      name: 'Redirect',
       color: '#1EA1FF',
     },
     {
-      name: 'Set contact',
+      name: 'MergeContact',
       color: '#FF1E90',
     },
     {
-      name: 'Process HTTP',
+      name: 'ProcessHttp',
       color: '#7762E3',
     },
     {
-      name: 'Set variable',
+      name: 'SetVariable',
       color: '#FF4A1E',
     },
     {
-      name: 'Process command',
+      name: 'ProcessCommand',
       color: '#FC91AE',
     },
+    {
+      name: 'ProcessContentAssistant',
+      color: '#6B6B6B',
+    }
   ]
 };
 

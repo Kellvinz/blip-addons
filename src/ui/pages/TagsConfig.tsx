@@ -15,49 +15,58 @@ import {
 import { Tag } from '~/types';
 import { ColorPalette } from '@features/AutoTag/ColorPalette';
 import { BdsButton } from 'blip-ds/dist/blip-ds-react';
-import { createConfirmationAlert, removeOverlay, showSuccessToast } from '~/Utils';
+import {
+  createConfirmationAlert,
+  removeOverlay,
+  showSuccessToast,
+} from '~/Utils';
 import { setSettings, Settings } from '~/Settings';
 
 const DEFAULT_TAGS: Tag[] = [
   {
-    name: 'Execute script',
+    name: 'ExecuteScript',
     color: '#FF961E',
   },
   {
-    name: 'Event Tracking',
+    name: 'TrackEvent',
     color: '#61D36F',
   },
   {
-    name: 'Manage distribution list',
+    name: 'ManageList',
     color: '#1EDEFF',
   },
   {
-    name: 'Redirect to service',
+    name: 'Redirect',
     color: '#1EA1FF',
   },
   {
-    name: 'Set contact',
+    name: 'MergeContact',
     color: '#FF1E90',
   },
   {
-    name: 'Process HTTP',
+    name: 'ProcessHttp',
     color: '#7762E3',
   },
   {
-    name: 'Set variable',
+    name: 'SetVariable',
     color: '#FF4A1E',
   },
   {
-    name: 'Process command',
+    name: 'ProcessCommand',
     color: '#FC91AE',
   },
-]
+  {
+    name: 'ProcessContentAssistant',
+    color: '#6B6B6B',
+  }
+];
 
 export const TagsConfig = (): JSX.Element => {
   const alertBody: JSX.Element = (
     <div>
-      Você tem certeza que gostaria de executar esta ação? Isso irá alterar as tags 
-      de forma definitiva e você terá que configurar elas novamente se necessário.
+      Você tem certeza que gostaria de executar esta ação? Isso irá alterar as
+      tags de forma definitiva e você terá que configurar elas novamente se
+      necessário.
     </div>
   );
 

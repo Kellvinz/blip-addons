@@ -1,3 +1,5 @@
+import { Settings } from '~/Settings';
+import { v4 as uuid } from 'uuid';
 import { BaseFeature } from "@features/BaseFeature";
 import { getBlockById, getController, interceptFunction } from "~/Utils";
 
@@ -8,9 +10,62 @@ export class AutoTag extends BaseFeature {
         const blockId = getBlockId();
         const block = getBlockById(blockId);
     
-        const actions = getAllActions(block);
+        const actions = getUniqActions(block);
 
-        console.log(actions);
+        console.log("actions ", actions);
+        console.log("tags ", block.$tags);
+
+        const actionsWithoutTags = actions.filter(action => {
+            const blockHasActionTag = block.$tags.filter(tag => tag.label === action).length > 0;
+            return !blockHasActionTag;     
+        });
+        
+        console.log("result ", actionsWithoutTags);
+        
+        actionsWithoutTags.forEach(action => {
+            const tagId = `blip-tag-${uuid()}`;
+            const tagByAction = Settings.defaultTags.filter(tag => tag.name === action)[0];
+            
+            console.log("Settings", Settings.defaultTags);
+            console.log("action", action)
+            console.log("tagByAction", tagByAction);
+            console.log("tagId", tagId);
+
+            console.log("------------------------------------------------------------------------")
+            block.$tags.push({
+                id: tagId, 
+                label: action,
+                background: tagByAction.color,
+                canChangeBackground: false
+            })
+        });
+        
+        // ACTION FORMART
+        // $id: "f4494a1c-80a1-409a-9d26-535004ebd6ec"
+        // $invalid: true
+        // $title: "Requisição HTTP"
+        // $typeOfContent: ""
+        // $validationError: Error: The HTTP method is required at new ValidationError (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:117156) at ProcessHttpActionSettingsValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:96042) at ActionValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:107296) at ActionViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:108820) at Validator.isValid (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:184830) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:114291 at Array.forEach (<anonymous>) at CommonStateViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:114240) at StateViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:71:367084) at BuilderController.validateState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:344329) at BuilderController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:382382) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderController.saveState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:382185) at BuilderController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:347745) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderSidebarController.$onStateChanged (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:347630) at BuilderSidebarController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:248957) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderSidebarController.updateAndSaveState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:248690) at AutoSaveService.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:247:10200) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:2895 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:3011) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:1914 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at Object.__awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:1527) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:247:10054 at Scope.$emit (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:194886) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:87259 at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:206878 at completeOutstandingRequest (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:51173) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:54019
+        // conditions: []
+        // settings: {headers: {…}}
+        // type: "ProcessHttp"
+
+        // TIPOS DE TAGS A SEREM ADICIONADAS
+        // type: 'ProcessHttp',
+        // type: 'TrackEvent',
+        // type: 'MergeContact'
+        // type: 'Redirect'
+        // type: 'ManageList'
+        // type: 'ExecuteScript'
+        // type: 'SetVariable',
+        // type: 'ProcessContentAssistant',
+        // type: 'ProcessCommand'
+
+        //  TAG FORMART
+        // background: "#FF4A1E"
+        // canChangeBackground: false
+        // id: "blip-tag-7b9f022e-0aa2-b4f1-592b-e7f5d9a2b64f"
+        // label: "xxx"
     }
 
     private handlerWithTags(): void {
@@ -33,6 +88,13 @@ const getAllActions = (block): any[] => {
     const leavingActions = block.$leavingCustomActions;
 
     return [...enteringActions, ...leavingActions];
+}
+
+const getUniqActions = (block): any[] => {
+    const allActions = getAllActions(block);
+    const typeActions = allActions.map(action => action.type);
+
+    return [...new Set(typeActions)];
 }
 
 const getBlockId = (): string => {
