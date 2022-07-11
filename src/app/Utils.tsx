@@ -21,6 +21,10 @@ export const getFlow = (): any => {
   return getController().flow;
 };
 
+export const getSelectedNodes = (): any => {
+  return getController().selectedNodes.map(n => n.id);
+};
+
 export const getBlocks = (): any[] => {
   return Object.values(getFlow());
 };
@@ -117,8 +121,33 @@ export const getBotName = (): string | false => {
   return false;
 };
 
+export const getBotId = (): string => {
+  const controller = getController();
+
+  if (controller.application && controller.application.shortName) {
+    return controller.application.shortName;
+  }
+
+  return '';
+};
+
+export const getRandom = (max: number): number =>
+  Math.floor(Math.random() * max);
+
 export const createNearbyPosition = (): { left: string; top: string } => {
-  return getController().createNearbyPosition();
+  const canvas = document.querySelector('#canvas') as HTMLElement;
+
+  const left = `${
+    getRandom(200) + canvas.scrollLeft + canvas.offsetWidth / 2
+  }px`;
+  const top = `${
+    getRandom(100) + canvas.scrollTop + canvas.offsetHeight / 2
+  }px`;
+
+  return {
+    left,
+    top,
+  };
 };
 
 export const getSpace = (): any => {
@@ -158,17 +187,9 @@ export const hexToRgb = (hex): any => {
 };
 
 export const getContrastColor = (color: any): string => {
-  const brightness = 1;
+  const yiq = (color.r * 299 + color.g * 587 + color.b * 114) / 1000;
 
-  const r = color.r;
-  const g = color.g;
-  const b = color.b;
-
-  const ir = Math.floor((255 - r) * brightness);
-  const ig = Math.floor((255 - g) * brightness);
-  const ib = Math.floor((255 - b) * brightness);
-
-  return rgbToHex(ir, ig, ib);
+  return yiq >= 128 ? '#000' : '#fff';
 };
 
 export const createOverlay = (): HTMLElement => {
@@ -220,7 +241,7 @@ export const createToast = ({
   toastText,
   toastTitle,
   variant,
-  duration = 1
+  duration = 1,
 }: ToastProps): void => {
   const toast = document.createElement('bds-toast');
 

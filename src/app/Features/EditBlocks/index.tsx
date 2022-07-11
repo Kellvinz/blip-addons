@@ -10,6 +10,7 @@ import {
   getBlockById,
   getContrastColor,
   hexToRgb,
+  getSelectedNodes
 } from '~/Utils';
 import {
   colorBlockBackground,
@@ -21,27 +22,21 @@ import { EditBlockOption } from './EditBlockOption';
 import { ChangeBlockFormat } from './ChangeBlockFormat';
 import { ChangeBlockColor } from './ChangeBlockColor';
 import { ChangeTextBlockColor } from './ChangeTextColor';
-
-const BLIPS_SIDEBAR_ID = 'blips-extension-sidebar-block-edit';
-const BUILDER_MAIN_AEREA_ID = 'main-content-area';
-const BUILDER_HTML_MENU_BLOCK_CLASS = 'builder-node-menu';
-const BUILDER_HTML_MENU_BLOCK_LIST_CLASS = 'builder-node-context-menu';
-const DEFALT_CLASS_BUILDER_HTML_MENU_BLOCK_LIST_ELEMENT = 'ph3 pv1 bp-fs-7 tc';
-const BUILDER_HTML_BLOCK_TAG = 'builder-node';
-const DELETE_OPTION_BLOCK_POSITION = 2;
+import * as Constants from './Constants';
 
 export class EditBlock extends BaseFeature {
   public static shouldRunOnce = true;
-  private id = '';
+  private idsList = [];
 
   private getSidebar(): HTMLElement {
-    return document.getElementById(BLIPS_SIDEBAR_ID);
+    return document.getElementById(Constants.BLIPS_SIDEBAR_ID);
   }
 
   private restoreBlockStyle = (): void => {
-    const block = getFlowBlockById(this.id);
-
-    formatShapeBlock(Shapes.DEFAULT, block);
+    for(const id of this.idsList){
+      const block = getFlowBlockById(id);
+      formatShapeBlock(Shapes.DEFAULT, block);
+    }
   };
 
   private openSidebar = (): void => {
@@ -49,10 +44,9 @@ export class EditBlock extends BaseFeature {
       // Creates and append the sidebar to the dom
       const blipsSidebar = document.createElement('div');
 
-      blipsSidebar.setAttribute('id', BLIPS_SIDEBAR_ID);
+      blipsSidebar.setAttribute('id', Constants.BLIPS_SIDEBAR_ID);
       ReactDOM.render(
         <BlockStyleSidebar
-          id={this.id}
           onEditBackgorundColor={this.onEditBackgorundColor}
           onEditTextColor={this.onEditTextColor}
           onEditShape={this.onEditShape}
@@ -62,7 +56,7 @@ export class EditBlock extends BaseFeature {
         blipsSidebar
       );
 
-      const mainArea = document.getElementById(BUILDER_MAIN_AEREA_ID);
+      const mainArea = document.getElementById(Constants.MAIN_CONTENT_AREA);
       mainArea.appendChild(blipsSidebar);
 
       // Waits for a moment and then fades the sidebar in
@@ -85,53 +79,56 @@ export class EditBlock extends BaseFeature {
     }
   };
 
-  private onEditBackgorundColor = (id: string, color: string): void => {
-    const block = getBlockById(id);
-    const flowBlock = getFlowBlockById(id);
-    const currentTextColor = hexToRgb(color);
-    const newTextColor = getContrastColor(currentTextColor);
+  private onEditBackgorundColor = (color: string): void => {
+    for(const id of this.idsList){
+      const block = getBlockById(id);
+      const flowBlock = getFlowBlockById(id);
+      const currentTextColor = hexToRgb(color);
+      const newTextColor = getContrastColor(currentTextColor);
 
-    block.addonsSettings = { ...block.addonsSettings, backgroundColor: color };
+      block.addonsSettings = { ...block.addonsSettings, backgroundColor: color };
 
-    colorBlockBackground(color, flowBlock);
-    colorBlockText(newTextColor, flowBlock);
+      colorBlockBackground(color, flowBlock);
+      colorBlockText(newTextColor, flowBlock);
+    }
   };
 
-  private onEditTextColor = (id: string, color: string): void => {
-    const block = getBlockById(id);
-    const flowBlock = getFlowBlockById(id);
-
-    block.addonsSettings = { ...block.addonsSettings, textColor: color };
-
-    colorBlockText(color, flowBlock);
+  private onEditTextColor = (color: string): void => {
+    for(const id of this.idsList){
+      const block = getBlockById(id);
+      const flowBlock = getFlowBlockById(id);
+  
+      block.addonsSettings = { ...block.addonsSettings, textColor: color };
+  
+      colorBlockText(color, flowBlock);
+    }
   };
 
-  private onEditShape = (id: string, shape: Shapes): void => {
-    const block = getBlockById(id);
-    const flowBlock = getFlowBlockById(id);
+  private onEditShape = (shape: Shapes): void => {
+    for(const id of this.idsList){
+      const block = getBlockById(id);
+      const flowBlock = getFlowBlockById(id);
 
-    block.addonsSettings = { ...block.addonsSettings, shape };
+      block.addonsSettings = { ...block.addonsSettings, shape };
 
-    formatShapeBlock(shape, flowBlock);
+      formatShapeBlock(shape, flowBlock);
+    }
   };
 
   private createBlockOptionsDiv(): any {
     const blipsDiv = document.createElement('div');
-    blipsDiv.setAttribute(
-      'class',
-      DEFALT_CLASS_BUILDER_HTML_MENU_BLOCK_LIST_ELEMENT
-    );
+    blipsDiv.setAttribute('class', Constants.CONTEXT_MENU_OPTION_CLASSES);
     return blipsDiv;
   }
 
-  public menuOptionElementHandle = (id: string): void => {
-    this.id = id;
+  public menuOptionElementHandle = (): void => {
+    this.idsList = getSelectedNodes();
     this.openSidebar();
   };
 
-  private addChangeFormatOptionOnBlockById(id: string): void {
+  private addEditOptionOnBlockById(id: string): void {
     const menuOptionsList = document.querySelector(
-      `${BUILDER_HTML_BLOCK_TAG}[id="${id}"]:not(.subflow-block) .${BUILDER_HTML_MENU_BLOCK_CLASS} .${BUILDER_HTML_MENU_BLOCK_LIST_CLASS}`
+      `${Constants.BUILDER_HTML_BLOCK_TAG}[id="${id}"]:not(.subflow-block) .${Constants.BUILDER_NODE_MENU} .${Constants.CONTEXT_MENU_CLASS}`
     );
 
     if (menuOptionsList) {
@@ -139,14 +136,13 @@ export class EditBlock extends BaseFeature {
 
       if (!editOption) {
         const menuOptionElement = this.createBlockOptionsDiv();
-
         ReactDOM.render(
-          <EditBlockOption id={id} onClick={this.menuOptionElementHandle} />,
+          <EditBlockOption onClick={this.menuOptionElementHandle} />,
           menuOptionElement
         );
         menuOptionsList.insertBefore(
           menuOptionElement,
-          menuOptionsList.children[DELETE_OPTION_BLOCK_POSITION]
+          menuOptionsList.children[Constants.DELETE_OPTION_BLOCK_POSITION]
         );
       }
     }
@@ -156,7 +152,7 @@ export class EditBlock extends BaseFeature {
     const blocks = getAllFlowBlock();
 
     for (const block of blocks) {
-      this.addChangeFormatOptionOnBlockById(block.id);
+      this.addEditOptionOnBlockById(block.id);
     }
   };
 

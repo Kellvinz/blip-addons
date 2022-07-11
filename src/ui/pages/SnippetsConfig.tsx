@@ -67,7 +67,7 @@ export const SnippetsConfig = (): JSX.Element => {
         !NOT_EMPTY_REGEX.test(snippet.key) ||
         !NOT_EMPTY_REGEX.test(snippet.value)
     );
-
+    
     if (hasEmpty) {
       return createToast({
         toastText: 'Todos os snippets devem ter um conteúdo não vazio',
