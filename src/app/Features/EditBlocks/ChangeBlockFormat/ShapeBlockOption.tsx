@@ -12,12 +12,10 @@ import RectangularIcon from '../../../../styles/Rectangle.svg';
 import { Shapes } from '../BlipBlocksFunctions';
 
 export type ShapeBlockOptionProps = {
-  id: string;
-  onClick: (id: string, shape: Shapes) => any;
+  onClick: (shape: Shapes) => any;
 };
 
 export const ShapeBlockOption = ({
-  id,
   onClick,
 }: ShapeBlockOptionProps): JSX.Element => {
   return (
@@ -26,7 +24,7 @@ export const ShapeBlockOption = ({
         <BdsButton
           style={{ marginRight: '20px' }}
           variant="ghost"
-          onClick={() => onClick(id, Shapes.ELLIPSE)}
+          onClick={() => onClick(Shapes.ELLIPSE)}
         >
           <EllipseIcon />
         </BdsButton>
@@ -34,7 +32,7 @@ export const ShapeBlockOption = ({
         <BdsButton
           style={{ marginRight: '20px' }}
           variant="ghost"
-          onClick={() => onClick(id, Shapes.UPPER_CONCAVE)}
+          onClick={() => onClick(Shapes.UPPER_CONCAVE)}
         >
           <UpperConcaveIcon />
         </BdsButton>
@@ -42,14 +40,14 @@ export const ShapeBlockOption = ({
         <BdsButton
           style={{ marginRight: '20px' }}
           variant="ghost"
-          onClick={() => onClick(id, Shapes.LOWER_CONCAVE)}
+          onClick={() => onClick(Shapes.LOWER_CONCAVE)}
         >
           <LowerConcaveIcon />
         </BdsButton>
 
         <BdsButton
           variant="ghost"
-          onClick={() => onClick(id, Shapes.RIGHT_CONCAVE)}
+          onClick={() => onClick(Shapes.RIGHT_CONCAVE)}
         >
           <RightConcaveIcon />
         </BdsButton>
@@ -58,7 +56,7 @@ export const ShapeBlockOption = ({
         <BdsButton
           style={{ marginRight: '20px' }}
           variant="ghost"
-          onClick={() => onClick(id, Shapes.LEFT_CONCAVE)}
+          onClick={() => onClick(Shapes.LEFT_CONCAVE)}
         >
           <LeftConcaveIcon />
         </BdsButton>
@@ -66,7 +64,7 @@ export const ShapeBlockOption = ({
         <BdsButton
           style={{ marginRight: '20px' }}
           variant="ghost"
-          onClick={() => onClick(id, Shapes.MAIN_DIAGONAL_CONCAVE)}
+          onClick={() => onClick(Shapes.MAIN_DIAGONAL_CONCAVE)}
         >
           <MainDiagonalConcaveIcon />
         </BdsButton>
@@ -74,14 +72,14 @@ export const ShapeBlockOption = ({
         <BdsButton
           style={{ marginRight: '20px' }}
           variant="ghost"
-          onClick={() => onClick(id, Shapes.SECONDARY_DIAGONAL_CONCAVE)}
+          onClick={() => onClick(Shapes.SECONDARY_DIAGONAL_CONCAVE)}
         >
           <SecondaryDiagonalConcaveIcon />
         </BdsButton>
 
         <BdsButton
           variant="ghost"
-          onClick={() => onClick(id, Shapes.RECTANGULAR)}
+          onClick={() => onClick(Shapes.RECTANGULAR)}
         >
           <RectangularIcon />
         </BdsButton>

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import pThrottle from 'p-throttle';
 
 import { interceptFunction } from '~/Utils';
 import { BaseFeature } from '../BaseFeature';
@@ -11,6 +10,7 @@ import {
   getBlockById,
   getContrastColor,
   hexToRgb,
+  getSelectedNodes
 } from '~/Utils';
 import {
   colorBlockBackground,
@@ -26,17 +26,17 @@ import * as Constants from './Constants';
 
 export class EditBlock extends BaseFeature {
   public static shouldRunOnce = true;
-  private observer: MutationObserver;
-  private id = '';
+  private idsList = [];
 
   private getSidebar(): HTMLElement {
     return document.getElementById(Constants.BLIPS_SIDEBAR_ID);
   }
 
   private restoreBlockStyle = (): void => {
-    const block = getFlowBlockById(this.id);
-
-    formatShapeBlock(Shapes.DEFAULT, block);
+    for(const id of this.idsList){
+      const block = getFlowBlockById(id);
+      formatShapeBlock(Shapes.DEFAULT, block);
+    }
   };
 
   private openSidebar = (): void => {
@@ -47,7 +47,6 @@ export class EditBlock extends BaseFeature {
       blipsSidebar.setAttribute('id', Constants.BLIPS_SIDEBAR_ID);
       ReactDOM.render(
         <BlockStyleSidebar
-          id={this.id}
           onEditBackgorundColor={this.onEditBackgorundColor}
           onEditTextColor={this.onEditTextColor}
           onEditShape={this.onEditShape}
@@ -80,34 +79,40 @@ export class EditBlock extends BaseFeature {
     }
   };
 
-  private onEditBackgorundColor = (id: string, color: string): void => {
-    const block = getBlockById(id);
-    const flowBlock = getFlowBlockById(id);
-    const currentTextColor = hexToRgb(color);
-    const newTextColor = getContrastColor(currentTextColor);
+  private onEditBackgorundColor = (color: string): void => {
+    for(const id of this.idsList){
+      const block = getBlockById(id);
+      const flowBlock = getFlowBlockById(id);
+      const currentTextColor = hexToRgb(color);
+      const newTextColor = getContrastColor(currentTextColor);
 
-    block.addonsSettings = { ...block.addonsSettings, backgroundColor: color };
+      block.addonsSettings = { ...block.addonsSettings, backgroundColor: color };
 
-    colorBlockBackground(color, flowBlock);
-    colorBlockText(newTextColor, flowBlock);
+      colorBlockBackground(color, flowBlock);
+      colorBlockText(newTextColor, flowBlock);
+    }
   };
 
-  private onEditTextColor = (id: string, color: string): void => {
-    const block = getBlockById(id);
-    const flowBlock = getFlowBlockById(id);
-
-    block.addonsSettings = { ...block.addonsSettings, textColor: color };
-
-    colorBlockText(color, flowBlock);
+  private onEditTextColor = (color: string): void => {
+    for(const id of this.idsList){
+      const block = getBlockById(id);
+      const flowBlock = getFlowBlockById(id);
+  
+      block.addonsSettings = { ...block.addonsSettings, textColor: color };
+  
+      colorBlockText(color, flowBlock);
+    }
   };
 
-  private onEditShape = (id: string, shape: Shapes): void => {
-    const block = getBlockById(id);
-    const flowBlock = getFlowBlockById(id);
+  private onEditShape = (shape: Shapes): void => {
+    for(const id of this.idsList){
+      const block = getBlockById(id);
+      const flowBlock = getFlowBlockById(id);
 
-    block.addonsSettings = { ...block.addonsSettings, shape };
+      block.addonsSettings = { ...block.addonsSettings, shape };
 
-    formatShapeBlock(shape, flowBlock);
+      formatShapeBlock(shape, flowBlock);
+    }
   };
 
   private createBlockOptionsDiv(): any {
@@ -116,12 +121,12 @@ export class EditBlock extends BaseFeature {
     return blipsDiv;
   }
 
-  public menuOptionElementHandle = (id: string): void => {
-    this.id = id;
+  public menuOptionElementHandle = (): void => {
+    this.idsList = getSelectedNodes();
     this.openSidebar();
   };
 
-  private addChangeFormatOptionOnBlockById(id: string): void {
+  private addEditOptionOnBlockById(id: string): void {
     const menuOptionsList = document.querySelector(
       `${Constants.BUILDER_HTML_BLOCK_TAG}[id="${id}"]:not(.subflow-block) .${Constants.BUILDER_NODE_MENU} .${Constants.CONTEXT_MENU_CLASS}`
     );
@@ -131,9 +136,8 @@ export class EditBlock extends BaseFeature {
 
       if (!editOption) {
         const menuOptionElement = this.createBlockOptionsDiv();
-
         ReactDOM.render(
-          <EditBlockOption id={id} onClick={this.menuOptionElementHandle} />,
+          <EditBlockOption onClick={this.menuOptionElementHandle} />,
           menuOptionElement
         );
         menuOptionsList.insertBefore(
@@ -148,7 +152,7 @@ export class EditBlock extends BaseFeature {
     const blocks = getAllFlowBlock();
 
     for (const block of blocks) {
-      this.addChangeFormatOptionOnBlockById(block.id);
+      this.addEditOptionOnBlockById(block.id);
     }
   };
 
@@ -159,46 +163,11 @@ export class EditBlock extends BaseFeature {
     new ChangeBlockColor().handle();
     new ChangeTextBlockColor().handle();
 
-    const isObserverNotDefined = !this.observer;
-
-    if (isObserverNotDefined) {
-      this.watchChanges();
-    }
+    interceptFunction('addContentState', () => this.handle());
+    interceptFunction('duplicateStateObject', () => this.handle());
+    interceptFunction('addDeskState', () => this.handle());
 
     return true;
-  }
-
-  private hasNewBlock(mutations: MutationRecord[]): boolean {
-    return !!mutations.find((mutation) => {
-      return Array.from(mutation.addedNodes).find(
-        (node) =>
-          (node as HTMLElement).tagName == Constants.BUILDER_NODE_TAG_NAME
-      );
-    });
-  }
-
-  private watchChanges(): void {
-    const throttle = pThrottle({
-      interval: 500,
-      limit: 1,
-    });
-
-    const applyChanges = throttle((mutations: MutationRecord[]) => {
-      const hasNewBlock = this.hasNewBlock(mutations);
-
-      if (hasNewBlock) {
-        this.handle();
-      }
-    });
-
-    this.observer = new MutationObserver(applyChanges);
-    const diagramContainer = document.querySelector(
-      Constants.DIAGRAM_CONTAINER
-    );
-
-    this.observer.observe(diagramContainer, {
-      childList: true,
-    });
   }
 
   /**

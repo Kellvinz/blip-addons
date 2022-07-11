@@ -21,6 +21,10 @@ export const getFlow = (): any => {
   return getController().flow;
 };
 
+export const getSelectedNodes = (): any => {
+  return getController().selectedNodes.map(n => n.id);
+};
+
 export const getBlocks = (): any[] => {
   return Object.values(getFlow());
 };

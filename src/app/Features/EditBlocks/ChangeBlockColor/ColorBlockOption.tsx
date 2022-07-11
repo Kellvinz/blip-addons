@@ -4,15 +4,13 @@ import { SketchPicker } from 'react-color';
 import * as Constants from '../Constants';
 
 export type ColorBlockOptionProps = {
-  id: string;
-  onSetColor: (id: string, color: string) => void;
+  onSetColor: (color: string) => void;
   defaultColor: string;
 };
 
 const WHITE = '#ffffff';
 
 export const ColorBlockOption = ({
-  id,
   onSetColor,
   defaultColor = WHITE,
 }: ColorBlockOptionProps): JSX.Element => {
@@ -20,7 +18,7 @@ export const ColorBlockOption = ({
 
   const handleChange = (color): void => {
     setColor(color);
-    onSetColor(id, color.hex);
+    onSetColor(color.hex);
   };
 
   return (

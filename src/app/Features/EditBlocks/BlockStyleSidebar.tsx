@@ -9,28 +9,24 @@ import {
   BlipAccordionBody,
   Flex,
 } from '~/Components';
-import { getBlockById } from '~/Utils';
 import { ColorBlockOption } from './ChangeBlockColor';
 import { ShapeBlockOption } from './ChangeBlockFormat';
 
 export type BlipsSidebarProps = {
-  id: string;
-  onEditBackgorundColor: (id: string, color: string) => void;
-  onEditTextColor: (id: string, color: string) => void;
-  onEditShape: (id: string, shape: string) => void;
+  onEditBackgorundColor: (color: string) => void;
+  onEditTextColor: (color: string) => void;
+  onEditShape: (shape: string) => void;
   onClose: () => void;
   onRestore: () => void;
 };
 
 export const BlockStyleSidebar = ({
-  id,
   onEditBackgorundColor,
   onEditTextColor,
   onEditShape,
   onClose,
   onRestore,
 }: BlipsSidebarProps): JSX.Element => {
-  const thisBlock = getBlockById(id);
 
   return (
     <>
@@ -70,7 +66,7 @@ export const BlockStyleSidebar = ({
                   <BlipAccordionButton title="Alterar formato do Bloco" />
                 </BlipAccordionHeader>
                 <BlipAccordionBody>
-                  <ShapeBlockOption id={id} onClick={onEditShape} />
+                  <ShapeBlockOption onClick={onEditShape} />
                 </BlipAccordionBody>
               </BlipAccordionItem>
 
@@ -80,8 +76,7 @@ export const BlockStyleSidebar = ({
                 </BlipAccordionHeader>
                 <BlipAccordionBody>
                   <ColorBlockOption
-                    defaultColor={thisBlock.addonsSettings?.backgroundColor}
-                    id={id}
+                    defaultColor={'#ffffff'}
                     onSetColor={onEditBackgorundColor}
                   />
                 </BlipAccordionBody>
@@ -93,8 +88,7 @@ export const BlockStyleSidebar = ({
                 </BlipAccordionHeader>
                 <BlipAccordionBody>
                   <ColorBlockOption
-                    defaultColor={thisBlock.addonsSettings?.textColor}
-                    id={id}
+                    defaultColor={'#ffffff'}
                     onSetColor={onEditTextColor}
                   />
                 </BlipAccordionBody>
@@ -111,7 +105,7 @@ export const BlockStyleSidebar = ({
             }}
           >
             <BdsButton type="submit" variant="delete" onClick={onRestore}>
-              Restaurar estilos padrão do bloco
+              Restaurar estilo padrão do bloco
             </BdsButton>
           </Flex>
         </div>
