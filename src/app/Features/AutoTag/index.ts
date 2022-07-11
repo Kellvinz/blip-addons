@@ -1,109 +1,162 @@
 import { Settings } from '~/Settings';
 import { v4 as uuid } from 'uuid';
-import { BaseFeature } from "@features/BaseFeature";
-import { getBlockById, getController, interceptFunction } from "~/Utils";
+import { BaseFeature } from '@features/BaseFeature';
+import { getBlockById, getController, interceptFunction } from '~/Utils';
 
 export class AutoTag extends BaseFeature {
-    public static shouldRunOnce = true;
+  public static shouldRunOnce = true;
 
-    private addTags(): void {
-        const blockId = getBlockId();
-        const block = getBlockById(blockId);
-    
-        const actions = getUniqActions(block);
+  private addTags(): void {
+    const blockId = getBlockId();
+    const block = getBlockById(blockId);
 
-        console.log("actions ", actions);
-        console.log("tags ", block.$tags);
+    const actions = getUniqActions(block);
 
-        const actionsWithoutTags = actions.filter(action => {
-            const blockHasActionTag = block.$tags.filter(tag => tag.label === action).length > 0;
-            return !blockHasActionTag;     
-        });
-        
-        console.log("result ", actionsWithoutTags);
-        
-        actionsWithoutTags.forEach(action => {
-            const tagId = `blip-tag-${uuid()}`;
-            const tagByAction = Settings.defaultTags.filter(tag => tag.name === action)[0];
-            
-            console.log("Settings", Settings.defaultTags);
-            console.log("action", action)
-            console.log("tagByAction", tagByAction);
-            console.log("tagId", tagId);
+    console.log('actions ', actions);
+    console.log('tags ', block.$tags);
 
-            console.log("------------------------------------------------------------------------")
-            block.$tags.push({
-                id: tagId, 
-                label: action,
-                background: tagByAction.color,
-                canChangeBackground: false
-            })
-        });
-        
-        // ACTION FORMART
-        // $id: "f4494a1c-80a1-409a-9d26-535004ebd6ec"
-        // $invalid: true
-        // $title: "Requisição HTTP"
-        // $typeOfContent: ""
-        // $validationError: Error: The HTTP method is required at new ValidationError (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:117156) at ProcessHttpActionSettingsValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:96042) at ActionValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:107296) at ActionViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:108820) at Validator.isValid (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:184830) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:114291 at Array.forEach (<anonymous>) at CommonStateViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:114240) at StateViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:71:367084) at BuilderController.validateState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:344329) at BuilderController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:382382) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderController.saveState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:382185) at BuilderController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:347745) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderSidebarController.$onStateChanged (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:347630) at BuilderSidebarController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:248957) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderSidebarController.updateAndSaveState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:248690) at AutoSaveService.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:247:10200) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:2895 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:3011) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:1914 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at Object.__awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:1527) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:247:10054 at Scope.$emit (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:194886) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:87259 at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:206878 at completeOutstandingRequest (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:51173) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:54019
-        // conditions: []
-        // settings: {headers: {…}}
-        // type: "ProcessHttp"
+    const actionsWithoutTags = actions.filter((action) => {
+      const blockHasActionTag =
+        block.$tags.filter((tag) => tag.label === action).length > 0;
+      return !blockHasActionTag;
+    });
 
-        // TIPOS DE TAGS A SEREM ADICIONADAS
-        // type: 'ProcessHttp',
-        // type: 'TrackEvent',
-        // type: 'MergeContact'
-        // type: 'Redirect'
-        // type: 'ManageList'
-        // type: 'ExecuteScript'
-        // type: 'SetVariable',
-        // type: 'ProcessContentAssistant',
-        // type: 'ProcessCommand'
+    console.log('actionsWithoutTags ', actionsWithoutTags);
 
-        //  TAG FORMART
-        // background: "#FF4A1E"
-        // canChangeBackground: false
-        // id: "blip-tag-7b9f022e-0aa2-b4f1-592b-e7f5d9a2b64f"
-        // label: "xxx"
-    }
+    actionsWithoutTags.forEach((action) => {
+      const tagId = `blip-tag-${uuid()}`;
+      const tagByAction = Settings.defaultTags.filter(tag => tag.name === action)[0];
+      const newTag = {
+          id: tagId,
+          label: action,
+          background: tagByAction.color,
+          canChangeBackground: false
+      };
+      const newTags = [...block.$tags, newTag]
 
-    private handlerWithTags(): void {
-        const htmlActions = document.querySelectorAll("li[ng-click^='$ctrl.onAddAction'], i[ng-click^='$ctrl.onDeleteAction']");
-        
-        htmlActions.forEach((e: Element) => {
-            e.addEventListener("click", this.addTags);
-        });
-    }
+      console.log("Settings", Settings.defaultTags);
+      console.log("action", action)
+      console.log("tagByAction", tagByAction);
+      console.log("tagId", tagId);
+      console.log("newTag", newTag);
 
-    public handle(): boolean {
-        interceptFunction('debouncedEditState', () => this.handlerWithTags());
-        return true;
-    }
+      console.log("------------------------------------------------------------------------")
+      console.log("oldTags", block.$tags);
+      block.$tags.length = 0;
+      // sleep(200);
+      block.$tags = newTags;
+      console.log("newTags varivael", newTags);
+      console.log("newTags", block.$tags);
+    //   const tab = document.getElementById('node-content-tab');
 
+    //   const header = tab.getElementsByClassName('sidebar-content-header')[0];
+    //   const tagMenuBtn = header.getElementsByTagName('img');
+
+    //   if (tagMenuBtn.length > 0) {
+    //     tagMenuBtn[0].click();
+    //   }
+
+    //   const tagMenu = header.getElementsByTagName('blip-tags')[0];
+
+    //   const input = tagMenu.getElementsByTagName('input')[0];
+    //   input.value = action;
+    //   input.dispatchEvent(new Event("input"));
+    });
+    // console.log("------------------------------------------------------------------------")
+
+    // const htmlBlock = document.getElementById(blockId);
+    // console.log("html", htmlBlock)
+    // htmlBlock.classList.add('ng-animate', 'invalid-node-add')
+    // htmlBlock.setAttribute('data-ng-animate', '2')
+    // console.log("htmlBlock classes", htmlBlock.classList);
+    // htmlBlock.classList.remove("jtk-drag-selected")
+
+    // htmlBlock.click();
+    // this.sleep(30);ng-if="$ctrl.state.$tags.length > 0 || $ctrl.canAddTags"
+
+    // <blip-tags ng-model="$ctrl.state.$tags" ng-if="$ctrl.state.$tags.length > 0 || $ctrl.canAddTags" datatest="state-tags" on-tag-added="$ctrl.onTagAdded($event)" on-tag-removed="$ctrl.onTagRemoved()" on-select-tag-color="$ctrl.onSelectTagColor($event)" can-change-background="true" can-add-options="true" prompt-text-creator="Criar tag" placeholder="Adicionar tag..." can-remove-tags="true" mode="full" options="$ctrl.TagsService.tags" class="builder-sidebar-tags ng-untouched ng-valid ng-not-empty ng-dirty ng-valid-parse" style=""><div id="blip-tags-a3986beb-9e8d-4e17-a3f1-e10005bc932b class=" blip-tags"=""></div><div class="blip-tags" id="ncid-91dd" data-nanocomponent="ncid-91dd" data-onloadid9qosubeyqxf="o83">
+    // <div class="blip-tag-wrapper   blip-tag--can-remove" id="ncid-c744" data-nanocomponent="ncid-c744"><div tabindex="0" id="blip-tag-0b53fc73-e8f9-4f32-835f-b5210f7d6847" style="background: #FF1E90" class="blip-tag"><span class="blip-tag__label">MergeContact</span> <span class="blip-tag__remove">x</span></div></div><div class="blip-tag-wrapper   blip-tag--can-remove" id="ncid-7902" data-nanocomponent="ncid-7902"><div tabindex="0" id="blip-tag-82ad84b9-acfe-4ac8-93c7-f6d9ed605380" style="background: #FF961E" class="blip-tag"><span class="blip-tag__label">ExecuteScript</span> <span class="blip-tag__remove">x</span></div></div><div class="bp-input-wrapper blip-select small " id="ncid-5b52" data-nanocomponent="ncid-5b52"><div class="blip-select__shell"><div class="blip-select__content"><div class="blip-select__option__content"><div class="blip-select__content-input"><label class="bp-label bp-c-cloud bp-fw-bold bp-select-hide-label"></label><input placeholder="Adicionar tag..." value="" data-target="blip-select__options-085ddc35-592a-f014-c0f6-f9f74b0fdc4a" class="blip-select__input bp-c-rooftop "></div><div class="blip-select__content-option small hide"><div class="blip-select__content-option-tags"></div><span class="blip-select__content-option-label bp-fs-6"></span> <span class="blip-select__content-option-description bp-fs-8 bp-c-cloud"></span></div></div></div><div class="blip-select__arrow-down blip-select__show-arrow">
+    //   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.99994 13.1639C9.67248 13.1635 9.35568 13.0474 9.1055 12.8361L3.41105 8.05556C3.2768 7.93531 3.19456 7.76758 3.1817 7.58782C3.16884 7.40805 3.22638 7.23032 3.34215 7.0922C3.45791 6.95407 3.62285 6.86636 3.80209 6.8476C3.98134 6.82884 4.16086 6.8805 4.30272 6.99167L9.99994 11.7722L15.6972 7C15.7646 6.93014 15.846 6.87521 15.936 6.83876C16.0261 6.80231 16.1227 6.78515 16.2198 6.78838C16.3169 6.79161 16.4122 6.81517 16.4996 6.85753C16.587 6.89989 16.6645 6.96011 16.7272 7.03431C16.7898 7.1085 16.8363 7.19501 16.8634 7.28826C16.8906 7.38151 16.8979 7.47941 16.8848 7.57566C16.8718 7.6719 16.8387 7.76434 16.7877 7.847C16.7367 7.92966 16.669 8.00071 16.5888 8.05556L10.8944 12.8361C10.6442 13.0474 10.3274 13.1635 9.99994 13.1639Z" fill="#8CA0B3"></path></svg></div></div><div id="blip-select__options-085ddc35-592a-f014-c0f6-f9f74b0fdc4a" class="blip-select__options"><div id="ncid-d7c5" data-nanocomponent="ncid-d7c5"><ul>
+    // <li tabindex="0" id="blip-tag-f5eb60d2-5df1-02f6-5eeb-ebeeff1bf9f5" class="blip-select__option" data-nanocomponent="ncid-d866"><span style="background: #FF6F1E" class="blip-tag__label-option">Executa Script</span></li><li tabindex="0" id="blip-tag-bb5f321f-4b13-d1e2-3eed-8022062b0a6e" class="blip-select__option" data-nanocomponent="ncid-a865"><span style="background: #EA4D9C" class="blip-tag__label-option">Process HTTP</span></li><li tabindex="0" id="blip-tag-5aacbd90-7f3b-67e3-f779-d1153ce70395" class="blip-select__option" data-nanocomponent="ncid-0858"><span style="background: #2cc3d5" class="blip-tag__label-option">SetVariable</span></li><li tabindex="0" id="blip-tag-5a8f2e00-fbf2-b144-3e7b-3f47c40783f9" class="blip-select__option" data-nanocomponent="ncid-eacd"><span style="background: #2cc3d5" class="blip-tag__label-option">Redirect</span></li><li tabindex="0" id="blip-tag-d270103b-d583-0905-a314-69bf91f60205" class="blip-select__option" data-nanocomponent="ncid-99d0"><span style="background: #61D36F" class="blip-tag__label-option">TrackEvent</span></li><li tabindex="0" id="blip-tag-5a396c28-73ff-dac4-f13e-dfd9d1e7f382" class="blip-select__option" data-nanocomponent="ncid-d988"><span style="background: #FF961E" class="blip-tag__label-option">sdksdaopkdsaopk</span></li></ul></div></div></div></div></blip-tags>
+
+    // ['diagram-node', 'flex', 'flex-column', 'jtk-draggable', 'jtk-droppable', 'editing-node', 'ng-animate', 'invalid-node-add', value: 'diagram-node flex flex-column jtk-draggable jtk-droppable editing-node ng-animate invalid-node-add']
+    // ['diagram-node', 'flex', 'flex-column', 'jtk-draggable', 'jtk-droppable', 'editing-node', 'invalid-node', value: 'diagram-node flex flex-column jtk-draggable jtk-droppable editing-node invalid-node']
+    // ACTION FORMART
+    // $id: "f4494a1c-80a1-409a-9d26-535004ebd6ec"
+    // $invalid: true
+    // $title: "Requisição HTTP"
+    // $typeOfContent: ""
+    // $validationError: Error: The HTTP method is required at new ValidationError (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:117156) at ProcessHttpActionSettingsValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:96042) at ActionValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:107296) at ActionViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:108820) at Validator.isValid (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:184830) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:114291 at Array.forEach (<anonymous>) at CommonStateViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:78:114240) at StateViewModelValidator.validate (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:71:367084) at BuilderController.validateState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:344329) at BuilderController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:382382) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderController.saveState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:382185) at BuilderController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:347745) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderSidebarController.$onStateChanged (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:347630) at BuilderSidebarController.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:248957) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3162 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:3278) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:2149 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at __awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:16:1713) at BuilderSidebarController.updateAndSaveState (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:30:248690) at AutoSaveService.<anonymous> (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:247:10200) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:2895 at Object.next (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:3011) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:1914 at new $Q (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:183911) at Object.__awaiter (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:1527) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:247:10054 at Scope.$emit (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:194886) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:262:87259 at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:206878 at completeOutstandingRequest (https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:51173) at https://portal.blip.ai/portal.js?7ff936b1e614bd506990:302:54019
+    // conditions: []
+    // settings: {headers: {…}}
+    // type: "ProcessHttp"
+
+    // TIPOS DE TAGS A SEREM ADICIONADAS
+    // type: 'ProcessHttp',
+    // type: 'TrackEvent',
+    // type: 'MergeContact'
+    // type: 'Redirect'
+    // type: 'ManageList'
+    // type: 'ExecuteScript'
+    // type: 'SetVariable',
+    // type: 'ProcessContentAssistant',
+    // type: 'ProcessCommand'
+
+    //  TAG FORMART
+    // background: "#FF4A1E"
+    // canChangeBackground: false
+    // id: "blip-tag-7b9f022e-0aa2-b4f1-592b-e7f5d9a2b64f"
+    // label: "xxx"
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  // public sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  private handlerWithTags(): void {
+    const htmlActions = document.querySelectorAll(
+      "li[ng-click^='$ctrl.onAddAction'], i[ng-click^='$ctrl.onDeleteAction']"
+    );
+
+    htmlActions.forEach((e: Element) => {
+      e.addEventListener('click', this.addTags);
+    });
+  }
+
+  public teste(): void {
+    console.log('sei laaaa', getController());
+  }
+
+  public handle(): boolean {
+    interceptFunction('debouncedEditState', () => this.handlerWithTags());
+    interceptFunction('closeSidebar', () => this.teste());
+    return true;
+  }
 }
 
 const getAllActions = (block): any[] => {
-    const enteringActions = block.$enteringCustomActions;
-    const leavingActions = block.$leavingCustomActions;
+  const enteringActions = block.$enteringCustomActions;
+  const leavingActions = block.$leavingCustomActions;
 
-    return [...enteringActions, ...leavingActions];
-}
+  return [...enteringActions, ...leavingActions];
+};
 
 const getUniqActions = (block): any[] => {
-    const allActions = getAllActions(block);
-    const typeActions = allActions.map(action => action.type);
+  const allActions = getAllActions(block);
+  const typeActions = allActions.map((action) => action.type);
 
-    return [...new Set(typeActions)];
-}
+  return [...new Set(typeActions)];
+};
 
 const getBlockId = (): string => {
-    const builderController = getController();
-    const sidebarSettings = builderController["SidebarContentService"];
-    const blockId = sidebarSettings.openSidebars[0].sidebarId;
+  const builderController = getController();
+  const sidebarSettings = builderController['SidebarContentService'];
+  const blockId = sidebarSettings.openSidebars[0].sidebarId;
 
-    return blockId;
-}
+  return blockId;
+};
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // <add-action add-action-text="+ Adicionar ação de entrada" on-action="$ctrl.onAddEnteringAction($action)" is-subflow-application="$ctrl.isSubflowApplication" state="$ctrl.state" is-disabled="$ctrl.enteringActionsExtras.addDisabled"><div class="ph4 flex flex-column justify-center add-action-button-div w-100" ng-class="{'disabled': $ctrl.isDisabled}">
 //     <!---->

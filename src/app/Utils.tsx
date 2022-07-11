@@ -67,8 +67,6 @@ export const interceptFunction = (
   const controller = getController();
   const functionToWrap = controller[functionName];
 
-  // console.log(`try to get ${functionName}`, functionToWrap)
-
   controller[functionName] = function keepThis(...args: any[]) {
     const result = functionToWrap.apply(this, args);
 
