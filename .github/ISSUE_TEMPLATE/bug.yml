@@ -1,0 +1,49 @@
+name: 🐛 Bug
+description: Report a bug
+labels: ['bug']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this bug.
+          - Try to include screenshots, gifs, diagrams or really anything that helps to demonstrate the bug.
+          - Try to write and answer the issue in English.
+          - Be kind and patient.
+
+  - type: checkboxes
+    attributes:
+      label: Verifications
+      options:
+        - label: I'm using the Blip Addons latest version
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Tell us exactly what happened and what's supposed to happen
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Installation
+      description: How did you install Blip Addons?
+      options:
+        - Chrome Store
+        - Build from source
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: List of steps to reproduce this bug.
+      placeholder: |
+        - Open the extension popup
+        - Go to snippets
+        - Type 你好
+    validations:
+      required: true
