@@ -12,7 +12,6 @@ import { BdsButton } from 'blip-ds/dist/blip-ds-react';
 
 const TRACKING_ACTION_NAME = 'TrackEvent';
 const EMPTY_STRING = '';
-const EMPTY_REACT_TEMPLATE = <></>;
 
 export class TrackingsInconsistencies extends BaseFeature {
   // public static isUserTriggered = true
