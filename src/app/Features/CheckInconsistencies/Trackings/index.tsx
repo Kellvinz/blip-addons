@@ -40,17 +40,10 @@ export class TrackingsInconsistencies extends BaseFeature {
       }
     }
 
-    if (trackingsWithProblems.length > 0 && !hasToSetVariable) {
-      return {
-        trackingMessage: this.getTrackingMessage(trackingsWithProblems),
-        hasTrackings: true,
-      };
-    } else {
-      return {
-        trackingMessage: EMPTY_REACT_TEMPLATE,
-        hasTrackings: false,
-      };
-    }
+    return {
+      trackingMessage: this.getTrackingMessage(trackingsWithProblems),
+      hasTrackings: trackingsWithProblems.length > 0,
+    };
   }
 
   private handleSubmit = (): void => {
@@ -69,7 +62,30 @@ export class TrackingsInconsistencies extends BaseFeature {
     return (
       <>
         <h4>Trackings</h4>
-        {this.getHtmlList(list)}
+
+        {list.length > 0 ? (
+          this.getTrackingsErrorMessage(list)
+        ) : (
+          <Paragraph>Nenhuma tracking com ação potencialmente nula identificada</Paragraph>
+        )}
+      </>
+    );
+  };
+
+  private getTrackingsErrorMessage = (list: any[]): any => {
+    return (
+      <>
+        <ul
+          style={{
+            fontSize: '0.875rem',
+            marginTop: '0.5rem',
+            color: '#607b99',
+          }}
+        >
+          {list.map((text, index) => (
+            <li key={index}>{text['$title']}</li>
+          ))}
+        </ul>
 
         <Paragraph>
           * Você deve alterar as condições de execução de trackings destes
@@ -80,21 +96,9 @@ export class TrackingsInconsistencies extends BaseFeature {
         </Paragraph>
 
         <BdsButton type="submit" variant="primary" onClick={this.handleSubmit}>
-          Definir
+          Corrigir automaticamente
         </BdsButton>
       </>
-    );
-  };
-
-  private getHtmlList = (list: any[]): any => {
-    return (
-      <ul
-        style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#607b99' }}
-      >
-        {list.map((text, index) => (
-          <li key={index}>{text['$title']}</li>
-        ))}
-      </ul>
     );
   };
 }

@@ -5,7 +5,6 @@ import { Paragraph } from '@components';
 import * as React from 'react';
 
 const NOT_EQUAL_CONDITION = 'notEquals';
-const EMPTY_REACT_TEMPLATE = <></>;
 
 export class TautologyInconsistencies extends BaseFeature {
   /**
@@ -18,28 +17,16 @@ export class TautologyInconsistencies extends BaseFeature {
     const outputConditionsWithTautology =
       this.getOutputConditionsWithTautology(blocks);
 
-    console.log('> actionsWithTautology');
-    console.log(actionsWithTautology);
-    console.log('> outputConditionsWithTautology');
-    console.log(outputConditionsWithTautology);
-
     const hasTautology =
       actionsWithTautology.length > 0 ||
       outputConditionsWithTautology.length > 0;
 
-      console.log(this.getTautologyMessage(
-        actionsWithTautology,
-        outputConditionsWithTautology
-      ))
-
     return {
       hasTautology: hasTautology,
-      tautologyMessage: hasTautology
-        ? this.getTautologyMessage(
-            actionsWithTautology,
-            outputConditionsWithTautology
-          )
-        : EMPTY_REACT_TEMPLATE,
+      tautologyMessage: this.getTautologyMessage(
+        actionsWithTautology,
+        outputConditionsWithTautology
+      ),
     };
   }
 
@@ -92,20 +79,19 @@ export class TautologyInconsistencies extends BaseFeature {
         {actionsWithTautology.length > 0 ? (
           this.getProblemActionsHtmlList(actionsWithTautology)
         ) : (
-          <p>Nenhuma tautologia identificada</p>
+          <Paragraph>Nenhuma tautologia identificada</Paragraph>
         )}
 
         <h4>Condições de saída com tautologia</h4>
-        {actionsWithTautology.length > 0 ? (
+        {outputConditionsWithTautology.length > 0 ? (
           this.getProblemOutputConditionsHtmlList(outputConditionsWithTautology)
         ) : (
-          <p>Nenhuma tautologia identificada</p>
+          <Paragraph>Nenhuma tautologia identificada</Paragraph>
         )}
 
         <Paragraph>
           * Você deve alterar as condições de execução destas ações, pois
           atualmente estas condições sempre serã verdadeiras.
-          <br />
         </Paragraph>
       </>
     );
@@ -117,7 +103,9 @@ export class TautologyInconsistencies extends BaseFeature {
         style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#607b99' }}
       >
         {actionsCondictions.map((ac, index) => (
-          <li key={index}>{ac.blockName} - {ac.actionName} - {ac.variable}</li>
+          <li key={index}>
+            {ac.blockName} - {ac.actionName} - {ac.variable}
+          </li>
         ))}
       </ul>
     );
@@ -131,7 +119,9 @@ export class TautologyInconsistencies extends BaseFeature {
         style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#607b99' }}
       >
         {outputCondictions.map((oc, index) => (
-          <li key={index}>{oc.blockName} - {oc.variable}</li>
+          <li key={index}>
+            {oc.blockName} - {oc.variable}
+          </li>
         ))}
       </ul>
     );
@@ -163,7 +153,7 @@ const hasExecuteCondition = (action: any): boolean =>
   action.conditions.length > 0;
 
 const hasTautologyOnCondition = (condition: any): boolean =>
-  condition.comparison === NOT_EQUAL_CONDITION && condition.values.length > 0;
+  condition.comparison === NOT_EQUAL_CONDITION && condition.values.length > 1;
 
 const getActionsCondictionsWithTautologyDetail = (
   action: any
