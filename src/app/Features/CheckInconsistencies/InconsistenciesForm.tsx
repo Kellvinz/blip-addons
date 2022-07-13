@@ -5,27 +5,29 @@ import { Paragraph, Block } from '~/Components';
 
 import { TrackingsInconsistencies } from '@features/CheckInconsistencies/Trackings';
 import { CheckLoopsOnFlow } from '@features/CheckInconsistencies/LoopsAndMaxBlocks';
+import { TautologyInconsistencies } from '@features/CheckInconsistencies/Tautology';
 import { showSuccessToast, showWarningToast } from '~/Utils';
 
 const MAX_STATES_WITHOUT_INPUT = 35;
 
 export const InconsistenciesForm = (): JSX.Element => {
+  const [tautologyInconsistenceMessage, setTautologyMessage] = React.useState();
   const [loopBlocksMessage, setLoopBlocksMessage] = React.useState();
-  const [trackingInconsistenceMessage, setTrackingInconsistenceMessage] =
-    React.useState();
+  const [trackingInconsistenceMessage, setTrackingInconsistenceMessage] = React.useState();
+
   /**
    * Runs the 'CheckInconsistencies' fature, thus check for Inconsistencies on the flow
    */
   const handleInconsistencies = (): void => {
-    new TrackingsInconsistencies().handle(false);
+    const { tautologyMessage, hasTautology } = new TautologyInconsistencies().handle();
     const { loopMessage, hasLoop } = new CheckLoopsOnFlow().handle();
-    const { trackingMessage, hasTrackings } =
-      new TrackingsInconsistencies().handle(false);
+    const { trackingMessage, hasTrackings } = new TrackingsInconsistencies().handle(false);
 
     setLoopBlocksMessage(loopMessage);
     setTrackingInconsistenceMessage(trackingMessage);
+    setTautologyMessage(tautologyMessage);
 
-    if (hasLoop || hasTrackings) {
+    if (hasLoop || hasTrackings || hasTautology) {
       showWarningToast('Foi encontrada alguma inconsistência no fluxo.');
     } else {
       showSuccessToast('Não foi encontrada nenhuma inconsistência no fluxo.');
@@ -47,6 +49,7 @@ export const InconsistenciesForm = (): JSX.Element => {
           Cascata de blocos com mais de {MAX_STATES_WITHOUT_INPUT} blocos sem
           entrada do usuário
         </li>
+        <li>Condições de saída de blocos ou de execução de ações com tautologia</li>
       </ul>
 
       <Block marginTop={2}>
@@ -62,6 +65,8 @@ export const InconsistenciesForm = (): JSX.Element => {
       <Block paddingY={1}>{loopBlocksMessage}</Block>
 
       <Block paddingY={1}>{trackingInconsistenceMessage}</Block>
+
+      <Block paddingY={1}>{tautologyInconsistenceMessage}</Block>
     </>
   );
 };
