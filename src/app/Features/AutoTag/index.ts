@@ -9,7 +9,8 @@ export class AutoTag extends BaseFeature {
   private addTags(): void {
     const blockId = getBlockId();
     const block = getBlockById(blockId);
-
+    block.$tags = [];
+    
     const actions = getUniqActions(block);
 
     console.log('actions ', actions);
@@ -34,6 +35,8 @@ export class AutoTag extends BaseFeature {
   
       block.$tags.push(newTag);
     });
+
+
     // console.log("------------------------------------------------------------------------")
 
     // const htmlBlock = document.getElementById(blockId);
@@ -81,26 +84,37 @@ export class AutoTag extends BaseFeature {
     // label: "xxx"
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  // public sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  private handlerWithTags(): void {
-    const htmlActions = document.querySelectorAll(
-      "li[ng-click^='$ctrl.onAddAction'], i[ng-click^='$ctrl.onDeleteAction']"
-    );
-
-    htmlActions.forEach((e: Element) => {
-      e.addEventListener('click', this.addTags);
-    });
+  private removeTags(x = 'eventListener'): void {
+    console.log("closeee", x)
   }
 
-  public teste(): void {
-    console.log('sei laaaa', getController());
+  private handlerWithTags(): void {
+    const createActionsButtons = document.querySelectorAll(
+      "li[ng-click^='$ctrl.onAddAction']"
+    );
+
+    const removeActionsButtons = document.querySelectorAll(
+      "span[ng-click^='$ctrl.closeSidebar']"
+    );
+
+    const builderController = getController();
+    const sidebarSettings = builderController['SidebarContentService'];
+    console.log("sidebarSettings", sidebarSettings)
+
+    createActionsButtons.forEach((e: Element) => {
+      e.addEventListener('click', this.addTags);
+    });
+
+    removeActionsButtons.forEach((e: Element) => {
+      e.addEventListener('click', (x) => this.removeTags('x'));
+    });
+
+    interceptFunction('closeSidebar', () => this.removeTags('dassdaasdaasd'));
+
   }
 
   public handle(): boolean {
     interceptFunction('debouncedEditState', () => this.handlerWithTags());
-    interceptFunction('closeSidebar', () => this.teste());
     return true;
   }
 }
