@@ -22,45 +22,17 @@ export class AutoTag extends BaseFeature {
     });
 
     console.log('actionsWithoutTags ', actionsWithoutTags);
-
-    actionsWithoutTags.forEach((action) => {
+    actionsWithoutTags.forEach(async (action) => {
       const tagId = `blip-tag-${uuid()}`;
-      const tagByAction = Settings.defaultTags.filter(tag => tag.name === action)[0];
+      const tagByAction = Settings.defaultTags.filter((tag) => tag.name === action)[0];
       const newTag = {
-          id: tagId,
-          label: action,
-          background: tagByAction.color,
-          canChangeBackground: false
+        id: tagId,
+        label: action,
+        background: tagByAction.color,
+        canChangeBackground: false,
       };
-      const newTags = [...block.$tags, newTag]
-
-      console.log("Settings", Settings.defaultTags);
-      console.log("action", action)
-      console.log("tagByAction", tagByAction);
-      console.log("tagId", tagId);
-      console.log("newTag", newTag);
-
-      console.log("------------------------------------------------------------------------")
-      console.log("oldTags", block.$tags);
-      block.$tags.length = 0;
-      // sleep(200);
-      block.$tags = newTags;
-      console.log("newTags varivael", newTags);
-      console.log("newTags", block.$tags);
-    //   const tab = document.getElementById('node-content-tab');
-
-    //   const header = tab.getElementsByClassName('sidebar-content-header')[0];
-    //   const tagMenuBtn = header.getElementsByTagName('img');
-
-    //   if (tagMenuBtn.length > 0) {
-    //     tagMenuBtn[0].click();
-    //   }
-
-    //   const tagMenu = header.getElementsByTagName('blip-tags')[0];
-
-    //   const input = tagMenu.getElementsByTagName('input')[0];
-    //   input.value = action;
-    //   input.dispatchEvent(new Event("input"));
+  
+      block.$tags.push(newTag);
     });
     // console.log("------------------------------------------------------------------------")
 
