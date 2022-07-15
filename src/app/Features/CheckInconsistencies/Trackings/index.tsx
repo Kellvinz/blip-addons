@@ -53,6 +53,8 @@ export class TrackingsInconsistencies extends BaseFeature {
         removeOverlay();
         showSuccessToast('Trackings Corrigidas!');
       },
+      mainMessage: "Você tem certeza que gostaria de executar esta ação? Isso irá alterar o fluxo definitivamente.",
+      footnote: "Para desfazer esta ação recarregue a última versão publicada do fluxo."
     });
 
   };

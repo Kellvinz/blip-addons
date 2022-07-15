@@ -19,8 +19,10 @@ export class TautologyInconsistencies extends BaseFeature {
   public handle(isToCorrect: boolean): any {
     const blocks = getBlocks();
 
-    const actionsWithTautology = 
-      this.actionsConditionsWithTautologyHandle(blocks, isToCorrect);
+    const actionsWithTautology = this.actionsConditionsWithTautologyHandle(
+      blocks,
+      isToCorrect
+    );
     const outputConditionsWithTautology =
       this.outputConditionsWithTautologyHandle(blocks, isToCorrect);
 
@@ -74,7 +76,9 @@ export class TautologyInconsistencies extends BaseFeature {
         if (isToCorrect) {
           fixOutputCondictionsWithTautology(outputCondition);
         } else {
-          outputConditionsWithProblems = outputConditionsWithProblems.concat(getOutputCondictionsWithTautology(outputCondition, block.$title));
+          outputConditionsWithProblems = outputConditionsWithProblems.concat(
+            getOutputCondictionsWithTautology(outputCondition, block.$title)
+          );
         }
       }
     }
@@ -136,6 +140,9 @@ export class TautologyInconsistencies extends BaseFeature {
         removeOverlay();
         showSuccessToast('Tautologias Corrigidas!');
       },
+      mainMessage: `A correção automática irá corrigir a tautologia trocando a condição "ou" por "e". Entretanto, recomendamos que você verifique a sua lógica para confirmar se ela realmente está correta. Deseja continuar?`,
+      footnote:
+        'Para desfazer esta ação recarregue a última versão publicada do fluxo.',
     });
   };
 
@@ -242,10 +249,17 @@ const fixOutputCondictionsWithTautology = (outputCondition: any): void => {
     }
   }
 
-  outputCondition.conditions.splice(0, outputCondition.conditions.length, ...newConditionsArray);
+  outputCondition.conditions.splice(
+    0,
+    outputCondition.conditions.length,
+    ...newConditionsArray
+  );
 };
 
-const getOutputCondictionsWithTautology = (outputCondition: any, blockName: string): ConditionActionProblemDetail[] => {
+const getOutputCondictionsWithTautology = (
+  outputCondition: any,
+  blockName: string
+): ConditionActionProblemDetail[] => {
   const outputConditionsWithProblems = [];
 
   for (const condition of outputCondition.conditions) {
