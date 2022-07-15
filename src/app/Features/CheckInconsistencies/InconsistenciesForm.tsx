@@ -19,7 +19,7 @@ export const InconsistenciesForm = (): JSX.Element => {
    * Runs the 'CheckInconsistencies' fature, thus check for Inconsistencies on the flow
    */
   const handleInconsistencies = (): void => {
-    const { tautologyMessage, hasTautology } = new TautologyInconsistencies().handle();
+    const { tautologyMessage, hasTautology } = new TautologyInconsistencies().handle(false);
     const { loopMessage, hasLoop } = new CheckLoopsOnFlow().handle();
     const { trackingMessage, hasTrackings } = new TrackingsInconsistencies().handle(false);
 

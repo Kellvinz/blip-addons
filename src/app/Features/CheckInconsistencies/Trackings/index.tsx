@@ -51,10 +51,10 @@ export class TrackingsInconsistencies extends BaseFeature {
       onConfirm: () => {
         this.handle(true);
         removeOverlay();
+        showSuccessToast('Trackings Corrigidas!');
       },
     });
 
-    showSuccessToast('Trackings Corrigidas!');
   };
 
   private getTrackingMessage = (list: string[]): any => {
@@ -95,7 +95,7 @@ export class TrackingsInconsistencies extends BaseFeature {
         </Paragraph>
 
         <BdsButton type="submit" variant="primary" onClick={this.handleSubmit}>
-          Corrigir automaticamente
+          Corrigir Trackings
         </BdsButton>
       </>
     );
