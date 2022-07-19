@@ -60,6 +60,24 @@ export const cleanSelectedNodes = (): void => {
   getController().selectedNodes = [];
 };
 
+export const killBlipFunction = (
+  functionName: string,
+  callback: () => void
+): void => {
+  const controller = getController();
+  const functionToWrap = controller[functionName];
+  console.log("functionToWrap", functionToWrap);
+
+  controller[functionName] = function keepThis(...args: any[]) {
+    // const result = functionToWrap.apply(this, args);
+
+    // setTimeout(() => callback());
+
+    return setTimeout(() => callback());
+  };
+};
+
+
 export const interceptFunction = (
   functionName: string,
   callback: () => void
