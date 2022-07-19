@@ -11,6 +11,7 @@ import { BdsButton } from 'blip-ds/dist/blip-ds-react';
 import * as React from 'react';
 
 const NOT_EQUAL_CONDITION = 'notEquals';
+const DEFAULT_CONDITION_SOURCE = 'context';
 
 export class TautologyInconsistencies extends BaseFeature {
   /**
@@ -276,8 +277,8 @@ const getOutputCondictionsWithTautology = (
 
 const getNotEqualCondition = (variable: string, value: string): any => {
   return {
-    source: 'context',
-    comparison: 'notEquals',
+    source: DEFAULT_CONDITION_SOURCE,
+    comparison: NOT_EQUAL_CONDITION,
     values: [value],
     variable: variable,
   };

@@ -12,15 +12,15 @@ import { Flex } from '@components/Flex';
 export type ConfirmationAlertProps = {
   onConfirm: (...args: any[]) => any;
   onCancel: (...args: any[]) => any;
-  mainMessage: string;
-  footnote: string;
+  mainMessage?: string;
+  footnote?: string;
 };
 
 export const ConfirmationAlert = ({
   onConfirm,
   onCancel,
-  mainMessage,
-  footnote
+  mainMessage='Você tem certeza que gostaria de executar esta ação? Isso irá alterar o fluxo definitivamente.',
+  footnote='Para desfazer esta ação recarregue a última versão publicada do fluxo.'
 }: ConfirmationAlertProps): JSX.Element => {
   return (
     <BdsAlert open>
