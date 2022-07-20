@@ -62,3 +62,9 @@ export type ConditionViewModel = {
   values: any[];
   variable: string;
 }
+
+export type ConditionActionProblemDetail = {
+  blockName: string;
+  actionName?: string;
+  variable: string;
+}
