@@ -19,8 +19,6 @@ const DEFAULT_COMPARISON = 'exists';
 const DEFAULT_CONDITION_SOURCE = 'context';
 
 export class TrackingsInconsistencies extends BaseFeature {
-  // public static isUserTriggered = true
-  // public static shouldRunOnce = true;
   /**
    * Check for Inconsistencies on the flow
    */
