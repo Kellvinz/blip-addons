@@ -1,12 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-
 import {
   ConfirmationAlert,
   ConfirmationAlertProps,
 } from '@features/RemoveGlobalTrackings/ConfirmationAlert';
 import { OVERLAY_ID } from './Constants';
-import type { FeatureRequest } from './types';
+import type { FeatureRequest, BlipFlowBlock } from './types';
 import { VariantType } from 'blip-ds/dist/types/components/toast/toast-interface';
 
 const BUILDER_HTML_BLOCK_TAG = 'builder-node';
@@ -21,15 +20,15 @@ export const getFlow = (): any => {
   return getController().flow;
 };
 
-export const getSelectedNodes = (): any => {
+export const getSelectedNodes = (): string[] => {
   return getController().selectedNodes.map(n => n.id);
 };
 
-export const getBlocks = (): any[] => {
+export const getBlocks = (): BlipFlowBlock[] => {
   return Object.values(getFlow());
 };
 
-export const getBlockById = (id: string): any => {
+export const getBlockById = (id: string): BlipFlowBlock => {
   return getFlow()[id];
 };
 

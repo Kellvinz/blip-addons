@@ -63,6 +63,16 @@ export type ConditionViewModel = {
   variable: string;
 };
 
+export type InconsistencyModel = {
+  message: React.ReactElement;
+  hasInconsistencies: boolean;
+};
+
+export type LoopBlocksDetail = {
+  loopBlocksFound: Set<string>;
+  count: number;
+};
+
 export type ConditionActionProblemDetail = {
   blockName: string;
   actionName?: string;
@@ -96,6 +106,8 @@ export type BlipAction = {
   $type: BlipActionType;
   settings: any;
   conditions: BlipCondiction[];
+  blockName?: string;
+  type?: string;
 };
 
 export type BlipContentAction = {
@@ -112,6 +124,7 @@ export type BlipCondiction = {
   source: BlipSource;
   values: string[];
   $$hashKey?: string;
+  variable?: string;
 };
 
 export type BlipBlockOutputCondition = {

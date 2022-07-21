@@ -2,6 +2,13 @@ import { BaseFeature } from '../../BaseFeature';
 import { getFlow } from '~/Utils';
 import * as React from 'react';
 import { Paragraph } from '~/Components';
+import {
+  BlipFlowBlock,
+  InconsistencyModel,
+  BlipBlockOutputCondition,
+  BlipContentAction,
+  LoopBlocksDetail,
+} from '~/types';
 
 const MAX_STATES_WITHOUT_INPUT = 35;
 
@@ -12,14 +19,14 @@ export class CheckLoopsOnFlow extends BaseFeature {
   /**
    * Check for Loops and Max blocks cascade without input
    */
-  public handle(): any {
+  public handle(): InconsistencyModel {
     return this.startSearchingForFlowLoops(getFlow());
   }
 
-  private startSearchingForFlowLoops = (flow): any => {
+  private startSearchingForFlowLoops = (flow: any): InconsistencyModel => {
     let loopBlocks = new Set<string>();
     let BlocksWithoutInputCount = 0;
-    let message;
+    let message: React.ReactElement;
     let hasInconsistencies = false;
 
     for (const blockId of Object.keys(flow)) {
@@ -29,12 +36,12 @@ export class CheckLoopsOnFlow extends BaseFeature {
         for (const output of this.getStateOutputs(block)) {
           loopBlocks.clear();
           BlocksWithoutInputCount = 0;
-          const loopFlowSet = this.hasStateLoop(
+          const loopFlowSet: any = this.hasStateLoop(
             flow,
             block,
             output,
             loopBlocks,
-            BlocksWithoutInputCount,
+            BlocksWithoutInputCount
           );
           if (loopFlowSet.loopBlocksFound) {
             loopBlocks = loopFlowSet.loopBlocksFound;
@@ -59,16 +66,16 @@ export class CheckLoopsOnFlow extends BaseFeature {
       message = this.getSuccessMessage();
     }
 
-    return { loopMessage: message, hasLoop: hasInconsistencies };
+    return { message, hasInconsistencies };
   };
 
-  private getLoopMessage = (list: string[]): any => {
+  private getLoopMessage = (loopBlocksNameList: string[]): React.ReactElement => {
     return (
       <>
         <h4>Loops no Fluxo</h4>
         <Paragraph>Foi encontrado o seguinte Loop no fluxo:</Paragraph>
 
-        {this.getHtmlList(list)}
+        {this.getHtmlList(loopBlocksNameList)}
 
         <Paragraph>
           * Você deve alterar as condições de saída de algum destes blocos para
@@ -79,7 +86,7 @@ export class CheckLoopsOnFlow extends BaseFeature {
     );
   };
 
-  private getMaxBlocksCascadeMessage = (list: string[]): any => {
+  private getMaxBlocksCascadeMessage = (blocksNameList: string[]): React.ReactElement => {
     return (
       <>
         <h4>Loops no Fluxo</h4>
@@ -88,7 +95,7 @@ export class CheckLoopsOnFlow extends BaseFeature {
           fluxo:
         </Paragraph>
 
-        {this.getHtmlList(list)}
+        {this.getHtmlList(blocksNameList)}
 
         <Paragraph>
           * Você deve remover blocos nesta cascata ou adicionar uma espera por
@@ -99,7 +106,7 @@ export class CheckLoopsOnFlow extends BaseFeature {
     );
   };
 
-  private getSuccessMessage = (): any => {
+  private getSuccessMessage = (): React.ReactElement => {
     return (
       <>
         <h4>Loops no Fluxo</h4>
@@ -108,12 +115,12 @@ export class CheckLoopsOnFlow extends BaseFeature {
     );
   };
 
-  private getHtmlList = (list: string[]): any => {
+  private getHtmlList = (blockNamesList: string[]): React.ReactElement => {
     return (
       <ul
         style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#607b99' }}
       >
-        {list.map((text, index) => (
+        {blockNamesList.map((text, index) => (
           <li key={index}>{text}</li>
         ))}
       </ul>
@@ -125,16 +132,16 @@ export class CheckLoopsOnFlow extends BaseFeature {
 
     if (loopBlocksList.length > 0) {
       return [...loopBlocksList, loopBlocksList[0]].map(
-        (c) => `${flow[c]?.$title}`,
+        (c) => `${flow[c]?.$title}`
       );
     }
     return [];
   };
 
   /**
-   * recursive function that detects loops in the flow starting from a given block
+   * Recursive function that detects loops in the flow starting from a given block
    * @param flow The builder flow
-   * @param state the current block
+   * @param block the current block
    * @param output the next block to be visited
    * @param loopBlocks Set of string with blocks ids in the loop
    * @param count The number of blocks in the loop
@@ -142,11 +149,11 @@ export class CheckLoopsOnFlow extends BaseFeature {
    */
   private hasStateLoop = (
     flow: any,
-    state: any,
-    output: any,
+    block: BlipFlowBlock,
+    output: BlipBlockOutputCondition,
     loopBlocks: Set<string>,
-    count: number,
-  ): any => {
+    count: number
+  ): LoopBlocksDetail | boolean => {
     loopBlocks = new Set(loopBlocks);
     if (count >= MAX_STATES_WITHOUT_INPUT) {
       return { loopBlocksFound: loopBlocks, count };
@@ -163,9 +170,9 @@ export class CheckLoopsOnFlow extends BaseFeature {
     if (hasInput) {
       return false;
     }
-    if (outputsOfOutputBlock.some((o) => o.stateId === state.id)) {
+    if (outputsOfOutputBlock.some((o) => o.stateId === block.id)) {
       loopBlocks.add(output.stateId);
-      loopBlocks.add(state.id);
+      loopBlocks.add(block.id);
       count += 2;
       return { loopBlocksFound: loopBlocks, count };
     }
@@ -174,7 +181,7 @@ export class CheckLoopsOnFlow extends BaseFeature {
     let nextLoopBlocks;
     if (
       outputsOfOutputBlock.some((o) => {
-        nextLoopBlocks = this.hasStateLoop(flow, state, o, loopBlocks, count);
+        nextLoopBlocks = this.hasStateLoop(flow, block, o, loopBlocks, count);
         return nextLoopBlocks;
       })
     ) {
@@ -183,14 +190,16 @@ export class CheckLoopsOnFlow extends BaseFeature {
     return false;
   };
 
-  private getStateInput = (state): any => {
-    return state.$contentActions.find((a) => a.input && !a.input.bypass);
+  private getStateInput = (block: BlipFlowBlock): BlipContentAction => {
+    return block.$contentActions.find((a) => a.input && !a.input.bypass);
   };
 
-  private getStateOutputs = (state): any => {
-    let outputs = state.$conditionOutputs;
-    if (state.$defaultOutput) {
-      outputs = [...(outputs || []), state.$defaultOutput];
+  private getStateOutputs = (
+    block: BlipFlowBlock
+  ): BlipBlockOutputCondition[] => {
+    let outputs: BlipBlockOutputCondition[] = block.$conditionOutputs;
+    if (block.$defaultOutput) {
+      outputs = [...outputs, block.$defaultOutput];
     }
     return outputs;
   };

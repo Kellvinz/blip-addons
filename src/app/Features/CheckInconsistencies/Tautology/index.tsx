@@ -5,7 +5,14 @@ import {
   removeOverlay,
   showSuccessToast,
 } from '~/Utils';
-import { ConditionActionProblemDetail } from '~/types';
+import {
+  ConditionActionProblemDetail,
+  BlipAction,
+  BlipFlowBlock,
+  BlipCondiction,
+  BlipBlockOutputCondition,
+  InconsistencyModel
+} from '~/types';
 import { Paragraph } from '@components';
 import { BdsButton } from 'blip-ds/dist/blip-ds-react';
 import * as React from 'react';
@@ -17,7 +24,7 @@ export class TautologyInconsistencies extends BaseFeature {
   /**
    * Check for Tautology inconsistencies on the flow
    */
-  public handle(isToCorrect: boolean): any {
+  public handle(isToCorrect: boolean): InconsistencyModel {
     const blocks = getBlocks();
 
     const actionsWithTautology = this.actionsConditionsWithTautologyHandle(
@@ -32,8 +39,8 @@ export class TautologyInconsistencies extends BaseFeature {
       outputConditionsWithTautology.length > 0;
 
     return {
-      hasTautology: hasTautology,
-      tautologyMessage: this.getTautologyMessage(
+      hasInconsistencies: hasTautology,
+      message: this.getTautologyMessage(
         actionsWithTautology,
         outputConditionsWithTautology
       ),
@@ -41,21 +48,22 @@ export class TautologyInconsistencies extends BaseFeature {
   }
 
   private actionsConditionsWithTautologyHandle = (
-    blocks: any,
+    blocks: BlipFlowBlock[],
     isToCorrect: boolean
   ): ConditionActionProblemDetail[] => {
-    let actionsWithExecuteConditions = [];
-    let actionsWithProblems = [];
+    let actionsWithExecuteConditions: BlipAction[] = [];
+    let actionsWithProblems: ConditionActionProblemDetail[] = [];
 
     for (const block of blocks) {
-      actionsWithExecuteConditions = getActionsWithExecuteConditions(block);
+      actionsWithExecuteConditions =
+        this.getActionsWithExecuteConditions(block);
 
       for (const action of actionsWithExecuteConditions) {
         if (isToCorrect) {
-          fixActionsCondictionsWithTautology(action);
+          this.fixActionsCondictionsWithTautology(action);
         } else {
           const condictionsWithTautology =
-            getActionsCondictionsWithTautologyDetail(action);
+            this.getActionsCondictionsWithTautologyDetail(action);
           actionsWithProblems = actionsWithProblems.concat(
             condictionsWithTautology
           );
@@ -67,18 +75,21 @@ export class TautologyInconsistencies extends BaseFeature {
   };
 
   private outputConditionsWithTautologyHandle = (
-    blocks: any,
+    blocks: BlipFlowBlock[],
     isToCorrect: boolean
-  ): any[] => {
-    let outputConditionsWithProblems = [];
+  ): ConditionActionProblemDetail[] => {
+    let outputConditionsWithProblems: ConditionActionProblemDetail[] = [];
 
     for (const block of blocks) {
       for (const outputCondition of block.$conditionOutputs) {
         if (isToCorrect) {
-          fixOutputCondictionsWithTautology(outputCondition);
+          this.fixOutputCondictionsWithTautology(outputCondition);
         } else {
           outputConditionsWithProblems = outputConditionsWithProblems.concat(
-            getOutputCondictionsWithTautology(outputCondition, block.$title)
+            this.getOutputCondictionsWithTautology(
+              outputCondition,
+              block.$title
+            )
           );
         }
       }
@@ -88,27 +99,29 @@ export class TautologyInconsistencies extends BaseFeature {
   };
 
   private getTautologyMessage = (
-    actionsWithTautology: any[],
-    outputConditionsWithTautology: any[]
-  ): any => {
+    actionsWithTautologyDetails: ConditionActionProblemDetail[],
+    outputConditionsWithTautologyDetails: ConditionActionProblemDetail[]
+  ): React.ReactElement => {
     return (
       <>
         <h4>Ações com tautologia</h4>
-        {actionsWithTautology.length > 0 ? (
-          this.getProblemActionsHtmlList(actionsWithTautology)
+        {actionsWithTautologyDetails.length > 0 ? (
+          this.getProblemActionsHtmlList(actionsWithTautologyDetails)
         ) : (
           <Paragraph>Nenhuma tautologia identificada</Paragraph>
         )}
 
         <h4>Condições de saída com tautologia</h4>
-        {outputConditionsWithTautology.length > 0 ? (
-          this.getProblemOutputConditionsHtmlList(outputConditionsWithTautology)
+        {outputConditionsWithTautologyDetails.length > 0 ? (
+          this.getProblemOutputConditionsHtmlList(
+            outputConditionsWithTautologyDetails
+          )
         ) : (
           <Paragraph>Nenhuma tautologia identificada</Paragraph>
         )}
 
-        {actionsWithTautology.length > 0 ||
-        outputConditionsWithTautology.length > 0 ? (
+        {actionsWithTautologyDetails.length > 0 ||
+        outputConditionsWithTautologyDetails.length > 0 ? (
           <>
             <Paragraph>
               * Você deve alterar as condições de execução destas ações, pois
@@ -147,12 +160,14 @@ export class TautologyInconsistencies extends BaseFeature {
     });
   };
 
-  private getProblemActionsHtmlList = (actionsCondictions: any[]): any => {
+  private getProblemActionsHtmlList = (
+    actionsCondictionsDetails: ConditionActionProblemDetail[]
+  ): React.ReactElement => {
     return (
       <ul
         style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#607b99' }}
       >
-        {actionsCondictions.map((ac, index) => (
+        {actionsCondictionsDetails.map((ac, index) => (
           <li key={index}>
             {ac.blockName} - {ac.actionName} - {ac.variable}
           </li>
@@ -162,13 +177,13 @@ export class TautologyInconsistencies extends BaseFeature {
   };
 
   private getProblemOutputConditionsHtmlList = (
-    outputCondictions: any[]
-  ): any => {
+    outputCondictionsDetails: ConditionActionProblemDetail[]
+  ): React.ReactElement => {
     return (
       <ul
         style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#607b99' }}
       >
-        {outputCondictions.map((oc, index) => (
+        {outputCondictionsDetails.map((oc, index) => (
           <li key={index}>
             {oc.blockName} - {oc.variable}
           </li>
@@ -176,110 +191,127 @@ export class TautologyInconsistencies extends BaseFeature {
       </ul>
     );
   };
-}
 
-const getActionsWithExecuteConditions = (block: any): any => {
-  return getAllActions(block).filter(hasExecuteCondition);
-};
-
-const getAllActions = (block: any): any => {
-  const blockName = block.$title;
-
-  return [
-    ...block.$enteringCustomActions.map((action) =>
-      insertBlockNameOnAction(action, blockName)
-    ),
-    ...block.$leavingCustomActions.map((action) =>
-      insertBlockNameOnAction(action, blockName)
-    ),
-  ];
-};
-
-const insertBlockNameOnAction = (action: any, blockName: string): any => {
-  return { ...action, blockName: blockName };
-};
-
-const hasExecuteCondition = (action: any): boolean =>
-  action.conditions.length > 0;
-
-const hasTautologyOnCondition = (condition: any): boolean =>
-  condition.comparison === NOT_EQUAL_CONDITION && condition.values.length > 1;
-
-const getActionsCondictionsWithTautologyDetail = (
-  action: any
-): ConditionActionProblemDetail[] => {
-  const condictionsWithTautology = [];
-  for (const condition of action.conditions) {
-    if (hasTautologyOnCondition(condition)) {
-      condictionsWithTautology.push({
-        blockName: action.blockName,
-        actionName: action.$title,
-        variable: condition.variable,
-      });
-    }
-  }
-  return condictionsWithTautology;
-};
-
-const fixActionsCondictionsWithTautology = (action: any): void => {
-  let newConditionsArray = [];
-
-  for (const condition of action.conditions) {
-    if (hasTautologyOnCondition(condition)) {
-      newConditionsArray = newConditionsArray.concat(
-        condition.values.map((c) => getNotEqualCondition(condition.variable, c))
-      );
-    } else {
-      newConditionsArray.push(condition);
-    }
-  }
-
-  action.conditions.splice(0, action.conditions.length, ...newConditionsArray);
-};
-
-const fixOutputCondictionsWithTautology = (outputCondition: any): void => {
-  let newConditionsArray = [];
-
-  for (const condition of outputCondition.conditions) {
-    if (hasTautologyOnCondition(condition)) {
-      newConditionsArray = newConditionsArray.concat(
-        condition.values.map((c) => getNotEqualCondition(condition.variable, c))
-      );
-    } else {
-      newConditionsArray.push(condition);
-    }
-  }
-
-  outputCondition.conditions.splice(
-    0,
-    outputCondition.conditions.length,
-    ...newConditionsArray
-  );
-};
-
-const getOutputCondictionsWithTautology = (
-  outputCondition: any,
-  blockName: string
-): ConditionActionProblemDetail[] => {
-  const outputConditionsWithProblems = [];
-
-  for (const condition of outputCondition.conditions) {
-    if (hasTautologyOnCondition(condition)) {
-      outputConditionsWithProblems.push({
-        blockName: blockName,
-        variable: condition.variable,
-      });
-    }
-  }
-
-  return outputConditionsWithProblems;
-};
-
-const getNotEqualCondition = (variable: string, value: string): any => {
-  return {
-    source: DEFAULT_CONDITION_SOURCE,
-    comparison: NOT_EQUAL_CONDITION,
-    values: [value],
-    variable: variable,
+  private getActionsWithExecuteConditions = (block: BlipFlowBlock): BlipAction[] => {
+    return this.getAllActions(block).filter(this.hasExecuteCondition);
   };
-};
+
+  private getAllActions = (block: BlipFlowBlock): BlipAction[] => {
+    const blockName = block.$title;
+
+    return [
+      ...block.$enteringCustomActions.map((action) =>
+        this.insertBlockNameOnAction(action, blockName)
+      ),
+      ...block.$leavingCustomActions.map((action) =>
+        this.insertBlockNameOnAction(action, blockName)
+      ),
+    ];
+  };
+
+  private insertBlockNameOnAction = (
+    action: BlipAction,
+    blockName: string
+  ): BlipAction => {
+    return { ...action, blockName: blockName };
+  };
+
+  private hasExecuteCondition = (action: BlipAction): boolean =>{
+    return action.conditions?.length > 0 || false;
+  }
+
+  private hasTautologyOnCondition = (condition: BlipCondiction): boolean =>
+    condition.comparison === NOT_EQUAL_CONDITION && condition.values.length > 1;
+
+  private getActionsCondictionsWithTautologyDetail = (
+    action: BlipAction
+  ): ConditionActionProblemDetail[] => {
+    const condictionsWithTautology: ConditionActionProblemDetail[] = [];
+    for (const condition of action.conditions) {
+      if (this.hasTautologyOnCondition(condition)) {
+        condictionsWithTautology.push({
+          blockName: action.blockName,
+          actionName: action.$title,
+          variable: condition.variable,
+        });
+      }
+    }
+    return condictionsWithTautology;
+  };
+
+  private fixActionsCondictionsWithTautology = (action: BlipAction): void => {
+    let newConditionsArray: BlipCondiction[] = [];
+
+    for (const condition of action.conditions) {
+      if (this.hasTautologyOnCondition(condition)) {
+        newConditionsArray = newConditionsArray.concat(
+          condition.values.map((c) =>
+            this.getNotEqualCondition(condition.variable, c)
+          )
+        );
+      } else {
+        newConditionsArray.push(condition);
+      }
+    }
+
+    action.conditions.splice(
+      0,
+      action.conditions.length,
+      ...newConditionsArray
+    );
+  };
+
+  private fixOutputCondictionsWithTautology = (
+    outputCondition: BlipBlockOutputCondition
+  ): void => {
+    let newConditionsArray: BlipCondiction[] = [];
+
+    for (const condition of outputCondition.conditions) {
+      if (this.hasTautologyOnCondition(condition)) {
+        newConditionsArray = newConditionsArray.concat(
+          condition.values.map((c) =>
+            this.getNotEqualCondition(condition.variable, c)
+          )
+        );
+      } else {
+        newConditionsArray.push(condition);
+      }
+    }
+
+    outputCondition.conditions.splice(
+      0,
+      outputCondition.conditions.length,
+      ...newConditionsArray
+    );
+  };
+
+  private getOutputCondictionsWithTautology = (
+    outputCondition: BlipBlockOutputCondition,
+    blockName: string
+  ): ConditionActionProblemDetail[] => {
+    const outputConditionsWithProblems: ConditionActionProblemDetail[] = [];
+
+    for (const condition of outputCondition.conditions) {
+      if (this.hasTautologyOnCondition(condition)) {
+        outputConditionsWithProblems.push({
+          blockName: blockName,
+          variable: condition.variable,
+        });
+      }
+    }
+
+    return outputConditionsWithProblems;
+  };
+
+  private getNotEqualCondition = (
+    variable: string,
+    value: string
+  ): BlipCondiction => {
+    return {
+      source: DEFAULT_CONDITION_SOURCE,
+      comparison: NOT_EQUAL_CONDITION,
+      values: [value],
+      variable: variable,
+    };
+  };
+}
