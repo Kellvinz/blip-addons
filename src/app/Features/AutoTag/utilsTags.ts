@@ -4,6 +4,7 @@ import { getBlockById, getUniqActions } from '~/Utils';
 
 export const updateTags = (blockId: string): void => {
   if(!blockId) return;
+  
   const block = getBlockById(blockId);
 
   block.$tags = [];

@@ -27,11 +27,11 @@ export class AutoTag extends BaseFeature {
       e.addEventListener('click', () => updateTags(blockId));
     });
 
-    switchBlipFunction(CLOSE_OPEN_SIDEBAR_EVENT, () => closeSidebar(blockId));
+    switchBlipFunction(CLOSE_OPEN_SIDEBAR_EVENT, () => closeSidebarWithTags(blockId));
   }
 }
 
-const closeSidebar = (blockId: string): void => {
+const closeSidebarWithTags = (blockId: string): void => {
   updateTags(blockId);
   
   const controller = getController();
