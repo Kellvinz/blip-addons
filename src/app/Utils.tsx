@@ -88,7 +88,6 @@ export const switchBlipFunction = (
   };
 };
 
-
 export const interceptFunction = (
   functionName: string,
   callback: () => void

@@ -1,9 +1,10 @@
 import { v4 as uuid } from 'uuid';
 import { Settings } from '~/Settings';
-import { getUniqActions } from '~/Utils';
+import { getBlockById, getUniqActions } from '~/Utils';
 
-export const updateTags = (block): void => {
-  if(!block) return;
+export const updateTags = (blockId: string): void => {
+  if(!blockId) return;
+  const block = getBlockById(blockId);
 
   block.$tags = [];
   const actions = getUniqActions(block);

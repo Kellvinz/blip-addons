@@ -3,10 +3,10 @@ import { switchBlipFunction, getController, interceptFunction, getEditingBlock }
 
 import { updateTags } from './utilsTags';
 
+const SIDEBAR_BLIP_SERVICE = 'SidebarContentService';
 const OPEN_BUILDER_NODE_EVENT = 'debouncedEditState';
 const CLOSE_OPEN_SIDEBAR_EVENT = 'closeSidebar';
 
-const SIDEBAR_BLIP_SERVICE = 'SidebarContentService';
 
 export class AutoTag extends BaseFeature {
   public static shouldRunOnce = true;
@@ -18,26 +18,22 @@ export class AutoTag extends BaseFeature {
   }
 
   private handlerWithTags(): void {
-    const block = getEditingBlock();
+    const blockId = getEditingBlock().id;
+    
+    const closeSidebarButton = document.querySelectorAll(
+      "span[ng-click^='$ctrl.closeSidebar']"
+    );
+    closeSidebarButton.forEach((e: Element) => {
+      e.addEventListener('click', () => updateTags(blockId));
+    });
 
-    setEventCloseSidebarButton(block);
-    switchBlipFunction(CLOSE_OPEN_SIDEBAR_EVENT, () => closeSidebarWithTags(block));
+    switchBlipFunction(CLOSE_OPEN_SIDEBAR_EVENT, () => closeSidebar(blockId));
   }
 }
 
-const setEventCloseSidebarButton = (block): void => {
-  const closeSidebarButton = document.querySelectorAll(
-    "span[ng-click^='$ctrl.closeSidebar']"
-  );
-
-  closeSidebarButton.forEach((e: Element) => {
-    e.addEventListener('click', () => updateTags(block));
-  });
-};
-
-const closeSidebarWithTags = (block): void => {
-  updateTags(block);
-
+const closeSidebar = (blockId: string): void => {
+  updateTags(blockId);
+  
   const controller = getController();
   controller[SIDEBAR_BLIP_SERVICE].cleanAndClose();
-};
+}
