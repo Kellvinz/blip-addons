@@ -3,8 +3,9 @@ import { Settings } from '~/Settings';
 import { getUniqActions } from '~/Utils';
 
 export const updateTags = (block): void => {
-  block.$tags = [];
+  if(!block) return;
 
+  block.$tags = [];
   const actions = getUniqActions(block);
 
   actions.forEach((action) => {

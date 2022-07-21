@@ -21,7 +21,6 @@ export class AutoTag extends BaseFeature {
     const block = getEditingBlock();
 
     setEventCloseSidebarButton(block);
-
     switchBlipFunction(CLOSE_OPEN_SIDEBAR_EVENT, () => closeSidebarWithTags(block));
   }
 }
