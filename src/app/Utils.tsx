@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-
 import {
   ConfirmationAlert,
   ConfirmationAlertProps,
@@ -29,6 +28,10 @@ export const getBlockById = (id: string): any => {
   return getFlow()[id];
 };
 
+export const getEditingBlock = (): any => {
+  return getController().editingState;
+}  
+
 export const showSuccessToast = (message: string): void => {
   getController().ngToast.success(message);
 };
@@ -56,24 +59,32 @@ export const selectBlock = (id: string): void => {
   });
 };
 
+export const getUniqActions = (block): any[] => {
+  const allActions = getAllActions(block);
+  const typeActions = allActions.map((action) => action.type);
+
+  return [...new Set(typeActions)];
+};
+
+export const getAllActions = (block): any[] => {
+  const enteringActions = block.$enteringCustomActions;
+  const leavingActions = block.$leavingCustomActions;
+
+  return [...enteringActions, ...leavingActions];
+};
+
 export const cleanSelectedNodes = (): void => {
   getController().selectedNodes = [];
 };
 
-export const killBlipFunction = (
-  functionName: string,
-  callback: () => void
+export const switchBlipFunction = (
+  functionToSwap: string,
+  surrogateFunction: () => void
 ): void => {
   const controller = getController();
-  const functionToWrap = controller[functionName];
-  console.log("functionToWrap", functionToWrap);
 
-  controller[functionName] = function keepThis(...args: any[]) {
-    // const result = functionToWrap.apply(this, args);
-
-    // setTimeout(() => callback());
-
-    return setTimeout(() => callback());
+  controller[functionToSwap] = function keepThis() {
+    return setTimeout(() => surrogateFunction());
   };
 };
 
