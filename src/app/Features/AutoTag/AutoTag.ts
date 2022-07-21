@@ -7,7 +7,6 @@ const SIDEBAR_BLIP_SERVICE = 'SidebarContentService';
 const OPEN_BUILDER_NODE_EVENT = 'debouncedEditState';
 const CLOSE_OPEN_SIDEBAR_EVENT = 'closeSidebar';
 
-
 export class AutoTag extends BaseFeature {
   public static shouldRunOnce = true;
 

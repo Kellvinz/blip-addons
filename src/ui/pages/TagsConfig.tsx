@@ -75,9 +75,9 @@ export const TagsConfig = (): JSX.Element => {
   const updateSettings = (): void => {
     console.log(colors);
 
-    // setSettings({
-    //   defaultTags: [...colors],
-    // });
+    setSettings({
+      defaultTags: [...colors],
+    });
 
     // createConfirmationAlert({
     //   bodyMessage: alertBody,
