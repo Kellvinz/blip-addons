@@ -8,6 +8,7 @@ import {
 
 import { Flex } from '@components/Flex';
 import { ISSUES_URL, REPOSITORY_URL } from '~/Constants';
+import { setSettings } from '~/Settings';
 
 import { KeywordsConfig } from './pages/KeywordConfig';
 import { SnippetsConfig } from './pages/SnippetsConfig';
@@ -51,6 +52,12 @@ export const App = (): JSX.Element => {
   const [page, setPage] = React.useState('home' as Page);
 
   const goTo = (page: Page) => () => setPage(page);
+
+  React.useEffect(() => {
+    chrome.storage.sync.get('settings', (result) => {
+      setSettings(result.settings);
+    });
+  }, []);
 
   if (page === 'home') {
     return (

@@ -5,18 +5,12 @@ import {
   cleanCopiedStates,
   cleanSelectedNodes,
   createNearbyPosition,
-  getBotName,
+  getBotId,
   getFlow,
   selectBlock,
   showSuccessToast,
 } from '~/Utils';
 import type { BlipsCopy } from '~/types';
-import { ChangeBlockColor } from '@features/EditBlocks/ChangeBlockColor';
-import { ChangeBlockFormat } from '@features/EditBlocks/ChangeBlockFormat';
-import { ChangeTextBlockColor } from '@features/EditBlocks/ChangeTextColor';
-
-// Safe interval in which the DOM has already been updated
-const SAFE_INTERVAL = 200;
 
 export class PasteBlock extends BaseFeature {
   public static shouldRunOnce = true;
@@ -48,7 +42,7 @@ export class PasteBlock extends BaseFeature {
        * Don't copy if it's the same bot, as blip automatically deals
        * with it
        */
-      const isSameBot = blipsCopy.originBot === getBotName();
+      const isSameBot = blipsCopy.originBot === getBotId();
 
       if (isSameBot) {
         return;
@@ -82,12 +76,6 @@ export class PasteBlock extends BaseFeature {
         }
 
         showSuccessToast('Bloco(s) colado(s) com sucesso');
-
-        setTimeout(() => {
-          new ChangeBlockFormat().handle();
-          new ChangeBlockColor().handle();
-          new ChangeTextBlockColor().handle();
-        }, SAFE_INTERVAL);
       }
     }
 
