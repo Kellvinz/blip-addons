@@ -29,7 +29,7 @@ const setNewTag = (action): any => {
 };
 
 const getTagColor = (action): any => {
-  const matchedAction = Settings.defaultTags.filter(
+  const matchedAction = Settings.personalTags.filter(
     (tag) => tag.name === action
   )[0];
 

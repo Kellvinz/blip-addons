@@ -5,22 +5,18 @@ import {
   Circle,
   Paragraph,
   BlipAccordion,
+  HorizontalStack,
   BlipAccordionBody,
   BlipAccordionItem,
   BlipAccordionHeader,
-  BlipAccordionButton,
-  HorizontalStack,
+  BlipAccordionButton
 } from '@components';
 
 import { Tag } from '~/types';
-import { ColorPalette } from '@features/AutoTag/ColorPalette';
-import { BdsButton } from 'blip-ds/dist/blip-ds-react';
-import {
-  createConfirmationAlert,
-  removeOverlay,
-  showSuccessToast,
-} from '~/Utils';
+import { createToast } from '~/Utils';
 import { setSettings, Settings } from '~/Settings';
+import { BdsButton } from 'blip-ds/dist/blip-ds-react';
+import { ColorPalette } from '@features/AutoTag/ColorPalette';
 
 const DEFAULT_TAGS: Tag[] = [
   {
@@ -62,44 +58,40 @@ const DEFAULT_TAGS: Tag[] = [
 ];
 
 export const TagsConfig = (): JSX.Element => {
-  const alertBody: JSX.Element = (
-    <div>
-      Você tem certeza que gostaria de executar esta ação? Isso irá alterar as
-      tags de forma definitiva e você terá que configurar elas novamente se
-      necessário.
-    </div>
-  );
+  const [colors, setColors] = React.useState(Settings.personalTags);
 
-  const [colors, setColors] = React.useState(Settings.defaultTags);
+  React.useEffect(() => {
+    chrome.storage.sync.get('settings', ({ settings }) => {
+      setColors(settings.personalTags || []);
+    });
+  }, []);
 
   const updateSettings = (): void => {
-    console.log(colors);
-
     setSettings({
-      defaultTags: [...colors],
+      personalTags: colors
     });
 
-    // createConfirmationAlert({
-    //   bodyMessage: alertBody,
-
-    //   onCancel: removeOverlay,
-    //   onConfirm: removeOverlay
-    // });
-
-    return;
+    createToast({
+      toastText: 'Tags atualizadas com sucesso',
+      toastTitle: 'Sucesso!',
+      variant: 'success',
+      duration: 2,
+    });
   };
 
   const setDefaultTags = (): void => {
-    createConfirmationAlert({
-      bodyMessage: alertBody,
+    setColors([...DEFAULT_TAGS]);
 
-      onCancel: removeOverlay,
-      onConfirm: () => {
-        setColors([...DEFAULT_TAGS]);
-        removeOverlay();
-      },
+    setSettings({
+      personalTags: DEFAULT_TAGS
     });
-    return;
+
+    createToast({
+      toastText: 'Tags atualizadas com sucesso',
+      toastTitle: 'Sucesso!',
+      variant: 'success',
+      duration: 2,
+    });
   };
 
   const onColorChange = (color: any, index: string): void => {
@@ -135,18 +127,18 @@ export const TagsConfig = (): JSX.Element => {
 
   return (
     <Block padding={0}>
-      <Paragraph>Modifique as suas tags e torne elas unicas!</Paragraph>
+      <Paragraph>Modifique as suas tags e torne elas únicas!</Paragraph>
 
       <Block marginTop={2} marginBottom={2}>
         <Block width="100%">
           <BlipAccordion>{getAccorionItems(colors)}</BlipAccordion>
         </Block>
         <HorizontalStack marginTop={2}>
+          <BdsButton variant="delete" onClick={setDefaultTags}>
+            Voltar ao Padrão
+          </BdsButton>
           <BdsButton type="submit" variant="primary" onClick={updateSettings}>
             Salvar
-          </BdsButton>
-          <BdsButton variant="delete" onClick={setDefaultTags}>
-            Resetar
           </BdsButton>
         </HorizontalStack>
       </Block>

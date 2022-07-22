@@ -10,7 +10,7 @@ export const Settings = {
   betaKey: ['beta'],
   devKey: ['dev'],
   personalSnippets: [],
-  defaultTags: [
+  personalTags: [
     {
       name: 'ExecuteScript',
       color: '#FF961E',
