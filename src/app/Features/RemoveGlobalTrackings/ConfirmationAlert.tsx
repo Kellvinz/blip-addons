@@ -14,6 +14,8 @@ export type ConfirmationAlertProps = {
   bodyMessage?: JSX.Element;
   onConfirm: (...args: any[]) => any;
   onCancel: (...args: any[]) => any;
+  mainMessage?: string;
+  footnote?: string;
 };
 
 const HEADER_DEFAULT = 'Atenção!';
@@ -32,6 +34,8 @@ export const ConfirmationAlert = ({
   bodyMessage = BODY_DEFAULT,
   onConfirm,
   onCancel,
+  mainMessage='Você tem certeza que gostaria de executar esta ação? Isso irá alterar o fluxo definitivamente.',
+  footnote='Para desfazer esta ação recarregue a última versão publicada do fluxo.'
 }: ConfirmationAlertProps): JSX.Element => {
   return (
     <BdsAlert open>
@@ -40,7 +44,10 @@ export const ConfirmationAlert = ({
       </BdsAlertHeader>
 
       <BdsAlertBody>
-       {bodyMessage}
+        {mainMessage}
+        <div style={{ color: '#607b99', marginTop: 8 }}>
+          * {footnote}
+        </div>
       </BdsAlertBody>
 
       <BdsAlertActions>
