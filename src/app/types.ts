@@ -73,6 +73,11 @@ export type LoopBlocksDetail = {
   count: number;
 };
 
+export type Tag = {
+  name: string;
+  color: string;
+}
+
 export type ConditionActionProblemDetail = {
   blockName: string;
   actionName?: string;

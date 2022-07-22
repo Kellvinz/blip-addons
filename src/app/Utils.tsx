@@ -32,6 +32,10 @@ export const getBlockById = (id: string): BlipFlowBlock => {
   return getFlow()[id];
 };
 
+export const getEditingBlock = (): any => {
+  return getController().editingState;
+}  
+
 export const showSuccessToast = (message: string): void => {
   getController().ngToast.success(message);
 };
@@ -59,8 +63,33 @@ export const selectBlock = (id: string): void => {
   });
 };
 
+export const getUniqActions = (block): any[] => {
+  const allActions = getAllActions(block);
+  const typeActions = allActions.map((action) => action.type);
+
+  return [...new Set(typeActions)];
+};
+
+export const getAllActions = (block): any[] => {
+  const enteringActions = block.$enteringCustomActions;
+  const leavingActions = block.$leavingCustomActions;
+
+  return [...enteringActions, ...leavingActions];
+};
+
 export const cleanSelectedNodes = (): void => {
   getController().selectedNodes = [];
+};
+
+export const switchBlipFunction = (
+  functionToSwap: string,
+  surrogateFunction: () => void
+): void => {
+  const controller = getController();
+
+  controller[functionToSwap] = function keepThis() {
+    return setTimeout(() => surrogateFunction());
+  };
 };
 
 export const interceptFunction = (

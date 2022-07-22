@@ -6,11 +6,13 @@ import {
   BdsTooltip,
 } from 'blip-ds/dist/blip-ds-react';
 
-import { KeywordsConfig } from './pages/KeywordConfig';
 import { Flex } from '@components/Flex';
-import { SnippetsConfig } from './pages/snippetsConfig';
 import { ISSUES_URL, REPOSITORY_URL } from '~/Constants';
 import { setSettings } from '~/Settings';
+
+import { KeywordsConfig } from './pages/KeywordConfig';
+import { SnippetsConfig } from './pages/SnippetsConfig';
+import { TagsConfig } from './pages/TagsConfig';
 
 const Pages = {
   keywordConfig: {
@@ -23,6 +25,12 @@ const Pages = {
     title: 'Configuração dos snippets',
     component: <SnippetsConfig />,
     icon: 'file-java-script',
+  },
+
+  tagConfig: {
+    title: 'Configuração das tags',
+    component: <TagsConfig />,
+    icon: 'tag',
   },
 };
 

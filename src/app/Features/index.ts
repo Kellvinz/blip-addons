@@ -11,3 +11,4 @@ export * from './CleanEnvironment';
 export * from './EditBlocks';
 export * from './RemoveGlobalTrackings';
 export * from './FilterBots';
+export * from './AutoTag';
