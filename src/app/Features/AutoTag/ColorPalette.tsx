@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { PRESET_COLORS } from '@features/EditBlocks/Colors';
+import { PRESET_COLORS } from '@features/EditBlocks/Constants';
 import { TwitterPicker } from 'react-color';
 
 export type ColorPaletteProps = {
