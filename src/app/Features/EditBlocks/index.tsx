@@ -115,7 +115,7 @@ export class EditBlock extends BaseFeature {
     }
   };
 
-  private createBlockOptionsDiv(): any {
+  private createBlockOptionsDiv(): HTMLElement {
     const blipsDiv = document.createElement('div');
     blipsDiv.setAttribute('class', Constants.CONTEXT_MENU_OPTION_CLASSES);
     return blipsDiv;

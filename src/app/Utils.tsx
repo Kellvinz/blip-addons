@@ -5,7 +5,7 @@ import {
   ConfirmationAlertProps,
 } from '@features/RemoveGlobalTrackings/ConfirmationAlert';
 import { OVERLAY_ID } from './Constants';
-import type { FeatureRequest, BlipFlowBlock } from './types';
+import type { FeatureRequest, BlipFlowBlock, BlipAction } from './types';
 import { VariantType } from 'blip-ds/dist/types/components/toast/toast-interface';
 
 const BUILDER_HTML_BLOCK_TAG = 'builder-node';
@@ -32,7 +32,7 @@ export const getBlockById = (id: string): BlipFlowBlock => {
   return getFlow()[id];
 };
 
-export const getEditingBlock = (): any => {
+export const getEditingBlock = (): BlipFlowBlock => {
   return getController().editingState;
 }  
 
@@ -63,14 +63,14 @@ export const selectBlock = (id: string): void => {
   });
 };
 
-export const getUniqActions = (block): any[] => {
+export const getUniqActions = (block: BlipFlowBlock): string[] => {
   const allActions = getAllActions(block);
   const typeActions = allActions.map((action) => action.type);
 
   return [...new Set(typeActions)];
 };
 
-export const getAllActions = (block): any[] => {
+export const getAllActions = (block: BlipFlowBlock): BlipAction[] => {
   const enteringActions = block.$enteringCustomActions;
   const leavingActions = block.$leavingCustomActions;
 
@@ -186,15 +186,15 @@ export const getHandleOnKeyDown = (): any => {
   return getController().handleOnKeyDown;
 };
 
-export const getFlowBlockById = (id: string): any => {
+export const getFlowBlockById = (id: string): HTMLElement => {
   return document.querySelector(`${BUILDER_HTML_BLOCK_TAG}[id="${id}"]`);
 };
 
-export const getAllFlowBlock = (): any => {
+export const getAllFlowBlock = (): NodeListOf<Element> => {
   return document.querySelectorAll(`${BUILDER_HTML_BLOCK_TAG}`);
 };
 
-export const rgbToHex = (r: any, g: any, b: any): any =>
+export const rgbToHex = (r: any, g: any, b: any): string =>
   '#' +
   [r, g, b]
     .map((x) => {
@@ -203,7 +203,7 @@ export const rgbToHex = (r: any, g: any, b: any): any =>
     })
     .join('');
 
-export const hexToRgb = (hex): any => {
+export const hexToRgb = (hex: string): any => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
     ? {
