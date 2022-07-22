@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "manifest_version": 3,
   "description": "Collection of Blip utilities",
-  "homepage_url": "https://github.com/jotaajunior/blip-addons",
+  "homepage_url": "https://github.com/pmartinsesa/blip-addons",
   "icons": {
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",

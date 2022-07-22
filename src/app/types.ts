@@ -63,6 +63,10 @@ export type ConditionViewModel = {
   variable: string;
 }
 
+export type Tag = {
+  name: string;
+  color: string;
+  
 export type ConditionActionProblemDetail = {
   blockName: string;
   actionName?: string;
