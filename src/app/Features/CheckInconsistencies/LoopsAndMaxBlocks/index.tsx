@@ -132,7 +132,7 @@ export class CheckLoopsOnFlow extends BaseFeature {
 
     if (loopBlocksList.length > 0) {
       return [...loopBlocksList, loopBlocksList[0]].map(
-        (c) => `${flow[c]?.$title}`
+        (block) => `${flow[block]?.$title}`
       );
     }
     return [];
@@ -180,8 +180,8 @@ export class CheckLoopsOnFlow extends BaseFeature {
     ++count;
     let nextLoopBlocks;
     if (
-      outputsOfOutputBlock.some((o) => {
-        nextLoopBlocks = this.hasStateLoop(flow, block, o, loopBlocks, count);
+      outputsOfOutputBlock.some((nextBlock) => {
+        nextLoopBlocks = this.hasStateLoop(flow, block, nextBlock, loopBlocks, count);
         return nextLoopBlocks;
       })
     ) {

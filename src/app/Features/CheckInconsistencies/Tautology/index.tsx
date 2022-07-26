@@ -167,9 +167,9 @@ export class TautologyInconsistencies extends BaseFeature {
       <ul
         style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#607b99' }}
       >
-        {actionsCondictionsDetails.map((ac, index) => (
+        {actionsCondictionsDetails.map((actionCondiction, index) => (
           <li key={index}>
-            {ac.blockName} - {ac.actionName} - {ac.variable}
+            {actionCondiction.blockName} - {actionCondiction.actionName} - {actionCondiction.variable}
           </li>
         ))}
       </ul>
@@ -245,8 +245,8 @@ export class TautologyInconsistencies extends BaseFeature {
     for (const condition of action.conditions) {
       if (this.hasTautologyOnCondition(condition)) {
         newConditionsArray = newConditionsArray.concat(
-          condition.values.map((c) =>
-            this.getNotEqualCondition(condition.variable, c)
+          condition.values.map((conditionVariable) =>
+            this.getNotEqualCondition(condition.variable, conditionVariable)
           )
         );
       } else {
@@ -269,8 +269,8 @@ export class TautologyInconsistencies extends BaseFeature {
     for (const condition of outputCondition.conditions) {
       if (this.hasTautologyOnCondition(condition)) {
         newConditionsArray = newConditionsArray.concat(
-          condition.values.map((c) =>
-            this.getNotEqualCondition(condition.variable, c)
+          condition.values.map((conditionVariable) =>
+            this.getNotEqualCondition(condition.variable, conditionVariable)
           )
         );
       } else {

@@ -112,9 +112,9 @@ export class TrackingsInconsistencies extends BaseFeature {
             color: '#607b99',
           }}
         >
-          {trackingsList.map((ta, index) => (
+          {trackingsList.map((tracking, index) => (
             <li key={index}>
-              {ta.blockName} - {ta.$title}
+              {tracking.blockName} - {tracking.$title}
             </li>
           ))}
         </ul>
@@ -145,20 +145,20 @@ export class TrackingsInconsistencies extends BaseFeature {
       if (
         processedConditionVariable === DEFAULT_USER_INPUT_VARIABLE &&
         !!trackingAction.conditions.find(
-          (x) =>
-            x.source === DEFAULT_USER_INPUT_SOURCE &&
-            x.comparison !== NOT_EQUAL_CONDITION &&
-            x.comparison !== NOT_EXISTS_CONDITION
+          (condition) =>
+            condition.source === DEFAULT_USER_INPUT_SOURCE &&
+            condition.comparison !== NOT_EQUAL_CONDITION &&
+            condition.comparison !== NOT_EXISTS_CONDITION
         )
       ) {
         return false;
       }
 
       return !trackingAction.conditions.find(
-        (c) =>
-          c.comparison !== NOT_EQUAL_CONDITION &&
-          c.comparison !== NOT_EXISTS_CONDITION &&
-          c.variable === processedConditionVariable
+        (condition) =>
+          condition.comparison !== NOT_EQUAL_CONDITION &&
+          condition.comparison !== NOT_EXISTS_CONDITION &&
+          condition.variable === processedConditionVariable
       );
     } else {
       return false;
