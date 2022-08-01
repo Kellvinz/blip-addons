@@ -1,18 +1,21 @@
-import { getBlocks } from "~/Utils";
-import { BaseFeature } from "@features/BaseFeature";
+import { getBlocks } from '~/Utils';
+import { BaseFeature } from '@features/BaseFeature';
 
-import { updateTags } from "./utilsTags";
+import { updateTags } from './tagsHandler';
 
 export class InitializeTags extends BaseFeature {
-    public static shouldRunOnce = true;
+  public static shouldRunOnce = true;
 
-    public handle(): boolean {
-        const blocks = getBlocks();
+  /**
+   * Updates the tags of all blocks
+   */
+  public handle(): boolean {
+    const blocks = getBlocks();
 
-        blocks.forEach((block) => {
-            updateTags(block.id);
-        })
+    blocks.forEach((block) => {
+      updateTags(block.id);
+    });
 
-        return true;
-    }
+    return true;
+  }
 }

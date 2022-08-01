@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { v4 as uuid } from 'uuid';
 import { BdsButton, BdsIcon } from 'blip-ds/dist/blip-ds-react';
 import {
@@ -130,20 +129,6 @@ export const RemoveGlobalTrackingsForm = (): JSX.Element => {
     });
 
     return arrayOfErrors;
-  };
-
-  const OVERLAY_ID = 'blip-addons-overlay';
-
-  const createOverlay = (): HTMLElement => {
-    const overlay = document.createElement('div');
-
-    overlay.id = OVERLAY_ID;
-    overlay.style.position = 'absolute';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.top = '0';
-
-    return overlay;
   };
 
   /**
