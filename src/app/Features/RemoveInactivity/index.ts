@@ -1,5 +1,6 @@
 import { BaseFeature } from '../BaseFeature';
 import { getBlocks, showSuccessToast, showWarningToast } from '~/Utils';
+import { BlipFlowBlock } from '~/types';
 
 const SKIP_BLOCKS = ['onboarding', 'fallback', 'error'];
 
@@ -13,13 +14,13 @@ export class RemoveInactivity extends BaseFeature {
    */
   public handle(): void {
     const blocks = getBlocks()
-      .filter(isExpirableBlock)
-      .filter(hasInput)
-      .filter(isInputBlock);
+      .filter(this.isExpirableBlock)
+      .filter(this.hasInput)
+      .filter(this.isInputBlock);
     let blocksUpdated = 0;
 
     for (const block of blocks) {
-      const inputAction = getInputAction(block);
+      const inputAction = this.getInputAction(block);
 
       if (inputAction.input.expiration) {
         delete inputAction.input.expiration;
@@ -33,10 +34,16 @@ export class RemoveInactivity extends BaseFeature {
       showWarningToast('Nenhum bloco alterado');
     }
   }
-}
 
-const isExpirableBlock = (block): boolean => !SKIP_BLOCKS.includes(block.id);
-const getInputAction = (block): any =>
-  block.$contentActions.find((contentAction) => contentAction['input']);
-const hasInput = (block): boolean => !!getInputAction(block);
-const isInputBlock = (block): boolean => !getInputAction(block).input.bypass;
+  private isExpirableBlock = (block: BlipFlowBlock): boolean =>
+    !SKIP_BLOCKS.includes(block.id);
+
+  private getInputAction = (block: BlipFlowBlock): any =>
+    block.$contentActions.find((contentAction) => contentAction['input']);
+
+  private hasInput = (block: BlipFlowBlock): boolean =>
+    !!this.getInputAction(block);
+
+  private isInputBlock = (block: BlipFlowBlock): boolean =>
+    !this.getInputAction(block).input.bypass;
+}

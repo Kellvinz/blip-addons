@@ -1,5 +1,8 @@
 import { BaseFeature } from '../BaseFeature';
 import { getBlocks, showSuccessToast, showWarningToast } from '~/Utils';
+import { BlipFlowBlock, BlipAction } from '~/types';
+
+const BLIP_TRACKING_ACTION_NAME = 'TrackEvent';
 
 export class RemoveGlobalTrackings extends BaseFeature {
   public static isUserTriggered = true;
@@ -11,7 +14,7 @@ export class RemoveGlobalTrackings extends BaseFeature {
    */
   public handle(customExtras: any): void {
     const blocks = getBlocks();
-    const blocksWithTrackingAction = getActionsWithTrackingEvent(blocks);
+    const blocksWithTrackingAction = this.getActionsWithTrackingEvent(blocks);
 
     let blocksUpdated = 0;
 
@@ -36,13 +39,18 @@ export class RemoveGlobalTrackings extends BaseFeature {
       showWarningToast('Nenhum bloco alterado');
     }
   }
-}
 
-const getActionsWithTrackingEvent = (blocks: any): any => {
-  return blocks.flatMap((block) => getAllActions(block).filter(isTracking));
-};
-const isTracking = (action: any): boolean => action.type === 'TrackEvent';
-const getAllActions = (block: any): any => [
-  ...block.$enteringCustomActions,
-  ...block.$leavingCustomActions,
-];
+  private getActionsWithTrackingEvent = (blocks: BlipFlowBlock[]): any => {
+    return blocks.flatMap((block) =>
+      this.getAllActions(block).filter(this.isTracking)
+    );
+  };
+
+  private isTracking = (action: BlipAction): boolean =>
+    action.type === BLIP_TRACKING_ACTION_NAME;
+
+  private getAllActions = (block: BlipFlowBlock): BlipAction[] => [
+    ...block.$enteringCustomActions,
+    ...block.$leavingCustomActions,
+  ];
+}

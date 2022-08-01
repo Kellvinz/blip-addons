@@ -13,21 +13,26 @@ const MAX_STATES_WITHOUT_INPUT = 35;
 export const InconsistenciesForm = (): JSX.Element => {
   const [tautologyInconsistenceMessage, setTautologyMessage] = React.useState();
   const [loopBlocksMessage, setLoopBlocksMessage] = React.useState();
-  const [trackingInconsistenceMessage, setTrackingInconsistenceMessage] = React.useState();
+  const [trackingInconsistenceMessage, setTrackingInconsistenceMessage] =
+    React.useState();
 
   /**
    * Runs the 'CheckInconsistencies' fature, thus check for Inconsistencies on the flow
    */
   const handleInconsistencies = (): void => {
-    const { tautologyMessage, hasTautology } = new TautologyInconsistencies().handle(false);
-    const { loopMessage, hasLoop } = new CheckLoopsOnFlow().handle();
-    const { trackingMessage, hasTrackings } = new TrackingsInconsistencies().handle(false);
+    const loopCheck: any = new CheckLoopsOnFlow().handle();
+    const trackingCheck: any = new TrackingsInconsistencies().handle(false);
+    const tautologyCheck: any = new TautologyInconsistencies().handle(false);
 
-    setLoopBlocksMessage(loopMessage);
-    setTrackingInconsistenceMessage(trackingMessage);
-    setTautologyMessage(tautologyMessage);
+    setLoopBlocksMessage(loopCheck.message);
+    setTrackingInconsistenceMessage(trackingCheck.message);
+    setTautologyMessage(tautologyCheck.message);
 
-    if (hasLoop || hasTrackings || hasTautology) {
+    if (
+      loopCheck.hasInconsistencies ||
+      trackingCheck.hasInconsistencies ||
+      tautologyCheck.hasInconsistencies
+    ) {
       showWarningToast('Foi encontrada alguma inconsistência no fluxo.');
     } else {
       showSuccessToast('Não foi encontrada nenhuma inconsistência no fluxo.');
@@ -49,7 +54,9 @@ export const InconsistenciesForm = (): JSX.Element => {
           Cascata de blocos com mais de {MAX_STATES_WITHOUT_INPUT} blocos sem
           entrada do usuário
         </li>
-        <li>Condições de saída de blocos ou de execução de ações com tautologia</li>
+        <li>
+          Condições de saída de blocos ou de execução de ações com tautologia
+        </li>
       </ul>
 
       <Block marginTop={2}>
