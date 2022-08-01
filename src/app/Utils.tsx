@@ -5,7 +5,7 @@ import {
   ConfirmationAlertProps,
 } from '@features/RemoveGlobalTrackings/ConfirmationAlert';
 import { OVERLAY_ID } from './Constants';
-import type { FeatureRequest, BlipFlowBlock, BlipAction } from './types';
+import type { FeatureRequest, BlipFlowBlock, BlipAction, BlipActionType } from './types';
 import { VariantType } from 'blip-ds/dist/types/components/toast/toast-interface';
 
 const BUILDER_HTML_BLOCK_TAG = 'builder-node';
@@ -63,7 +63,7 @@ export const selectBlock = (id: string): void => {
   });
 };
 
-export const getUniqActions = (block: BlipFlowBlock): string[] => {
+export const getUniqActions = (block: BlipFlowBlock): BlipActionType[] => {
   const allActions = getAllActions(block);
   const typeActions = allActions.map((action) => action.type);
 

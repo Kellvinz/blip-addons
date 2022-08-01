@@ -88,7 +88,7 @@ export type BlipFlowBlock = {
   root: boolean;
   id: string;
   $title: string;
-  $tags: BlipTags[];
+  $tags: BlipTag[];
   $position: BlipFlowBlockPosition;
   $enteringCustomActions: BlipAction[];
   $leavingCustomActions: BlipAction[];
@@ -109,11 +109,10 @@ export type BlipAction = {
   $title: string;
   $typeOfContent: BlipTypeOfContent;
   $cardContent?: any;
-  $type: BlipActionType;
   settings: any;
   conditions: BlipCondiction[];
   blockName?: string;
-  type?: string;
+  type?: BlipActionType;
 };
 
 export type BlipContentAction = {
@@ -161,7 +160,7 @@ export type BlipInputValidation = {
   type?: string;
 };
 
-export type BlipTags = {
+export type BlipTag = {
   background: string;
   canChangeBackground: boolean;
   id: string;
