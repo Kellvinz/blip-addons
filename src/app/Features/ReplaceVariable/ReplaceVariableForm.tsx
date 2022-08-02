@@ -5,6 +5,8 @@ import { Input, Paragraph, Block } from '~/Components';
 import { showSuccessToast, showDangerToast } from '~/Utils';
 import { ReplaceVariable } from './index'
 
+const VALID_BLIP_VARIABLE_REGEX = /^[a-zA-Z][a-zA-Z0-9.@]+$/;
+
 export const ReplaceVariableForm = (): JSX.Element => {
   const [originalVariableName, setOriginalVariableName] = React.useState('');
   const [newVariableName, setNewVariableName] = React.useState('');
@@ -15,13 +17,13 @@ export const ReplaceVariableForm = (): JSX.Element => {
    * waiting limit time to all blocks with input
    */
   const handleSubmit = (): void => {
-    if (!originalVariableName) {
-      setError('Preencha com o nome de uma variável do Blip');
+    if (!VALID_BLIP_VARIABLE_REGEX.test(originalVariableName)) {
+      setError('Preencha com um nome de variável válida no Blip');
       return;
     }
 
-    if (!newVariableName) {
-      setError('Preencha com o nome de uma variável do Blip');
+    if (!VALID_BLIP_VARIABLE_REGEX.test(newVariableName)) {
+      setError('Preencha com um nome de variável válida no Blip');
       return;
     }
 
