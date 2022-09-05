@@ -58,7 +58,6 @@ export class TrackingsInconsistencies extends BaseFeature {
         }
       }
     }
-
     return trackingsWithProblems;
   };
 
@@ -135,32 +134,38 @@ export class TrackingsInconsistencies extends BaseFeature {
   };
 
   private actionCanBeNull = (trackingAction: BlipAction): boolean => {
-    const conditionVariable = this.getTrackingActionVariable(trackingAction);
-
-    if (this.hasConditionVariable(conditionVariable)) {
-      const processedConditionVariable = conditionVariable
-        .replace('}}', '')
-        .replace('{{', '');
-
-      if (
-        processedConditionVariable === DEFAULT_USER_INPUT_VARIABLE &&
-        !!trackingAction.conditions.find(
+    try {   
+      const conditionVariable = this.getTrackingActionVariable(trackingAction);
+  
+      if (this.hasConditionVariable(conditionVariable)) {
+        const processedConditionVariable = conditionVariable
+          .replace('}}', '')
+          .replace('{{', '');
+  
+        if (
+          processedConditionVariable === DEFAULT_USER_INPUT_VARIABLE &&
+          trackingAction?.conditions &&
+          !!trackingAction?.conditions?.find(
+            (condition) =>
+              condition.source === DEFAULT_USER_INPUT_SOURCE &&
+              condition.comparison !== NOT_EQUAL_CONDITION &&
+              condition.comparison !== NOT_EXISTS_CONDITION
+          )
+        ) {
+          return false;
+        }
+  
+        return trackingAction?.conditions &&
+        !trackingAction?.conditions?.find(
           (condition) =>
-            condition.source === DEFAULT_USER_INPUT_SOURCE &&
             condition.comparison !== NOT_EQUAL_CONDITION &&
-            condition.comparison !== NOT_EXISTS_CONDITION
-        )
-      ) {
+            condition.comparison !== NOT_EXISTS_CONDITION &&
+            condition.variable === processedConditionVariable
+        );
+      } else {
         return false;
       }
-
-      return !trackingAction.conditions.find(
-        (condition) =>
-          condition.comparison !== NOT_EQUAL_CONDITION &&
-          condition.comparison !== NOT_EXISTS_CONDITION &&
-          condition.variable === processedConditionVariable
-      );
-    } else {
+    } catch (error) {
       return false;
     }
   };

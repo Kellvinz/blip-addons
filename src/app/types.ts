@@ -76,7 +76,7 @@ export type LoopBlocksDetail = {
 export type Tag = {
   name: string;
   color: string;
-}
+};
 
 export type ConditionActionProblemDetail = {
   blockName: string;
@@ -121,7 +121,7 @@ export type BlipContentAction = {
   $validationError: any;
   $typeOfContent: string;
   action?: BlipAction;
-  input?: BlipInput;
+  input?: any; //refatorar
 };
 
 export type BlipCondiction = {
@@ -204,7 +204,8 @@ export type BlipActionType =
   | 'ExecuteScript'
   | 'SetVariable'
   | 'ProcessContentAssistant'
-  | 'ProcessCommand';
+  | 'ProcessCommand'
+  | 'SendMessage';
 
 export type BlipTypeOfContent =
   | 'chat-state'
