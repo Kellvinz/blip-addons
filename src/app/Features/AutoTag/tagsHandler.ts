@@ -18,7 +18,9 @@ export const updateTags = (blockId: string): void => {
 
   actionsType.forEach((actionType: BlipActionType) => {
     const newTag = createTag(actionType);
-    block.$tags.push(newTag);
+    if(newTag){
+      block.$tags.push(newTag);
+    }
   });
 };
 
@@ -49,5 +51,5 @@ const getTagColor = (actionType: BlipActionType): string => {
     (tag) => tag.name === actionType
   )[0];
 
-  return matchedAction.color;
+  return matchedAction ? matchedAction?.color : '';
 };

@@ -1,8 +1,6 @@
 import * as React from 'react';
-import { BdsButton } from 'blip-ds/dist/blip-ds-react';
-
-import { Paragraph, Block } from '~/Components';
-
+import { BdsButton,BdsTypo } from 'blip-ds/dist/blip-ds-react';
+import { Paragraph, Block, Switch, Flex } from '~/Components';
 import { TrackingsInconsistencies } from '@features/CheckInconsistencies/Trackings';
 import { CheckLoopsOnFlow } from '@features/CheckInconsistencies/LoopsAndMaxBlocks';
 import { TautologyInconsistencies } from '@features/CheckInconsistencies/Tautology';
@@ -15,23 +13,49 @@ export const InconsistenciesForm = (): JSX.Element => {
   const [loopBlocksMessage, setLoopBlocksMessage] = React.useState();
   const [trackingInconsistenceMessage, setTrackingInconsistenceMessage] =
     React.useState();
+  const [isLoopCheckEnabled, setIsLoopCheckEnabled] = React.useState(true);
+  const [isTrackingCheckEnabled, setIsTrackingCheckEnabled] = React.useState(true);
+  const [isTautologyCheckEnabled, setIsTautologyCheckEnabled] = React.useState(true);
 
   /**
    * Runs the 'CheckInconsistencies' fature, thus check for Inconsistencies on the flow
    */
   const handleInconsistencies = (): void => {
-    const loopCheck: any = new CheckLoopsOnFlow().handle();
-    const trackingCheck: any = new TrackingsInconsistencies().handle(false);
-    const tautologyCheck: any = new TautologyInconsistencies().handle(false);
 
-    setLoopBlocksMessage(loopCheck.message);
-    setTrackingInconsistenceMessage(trackingCheck.message);
-    setTautologyMessage(tautologyCheck.message);
+    let loopCheck: any = {
+      hasInconsistencies: false,
+      message: ''
+    };
+
+    let trackingCheck: any = {
+      hasInconsistencies: false,
+      message: ''
+    };
+
+    let tautologyCheck: any = {
+      hasInconsistencies: false,
+      message: ''
+    };
+
+    if(isLoopCheckEnabled) {
+      loopCheck = new CheckLoopsOnFlow().handle();
+      setLoopBlocksMessage(loopCheck.message);
+    }
+
+    if(isTrackingCheckEnabled){
+      trackingCheck = new TrackingsInconsistencies().handle(false);
+      setTrackingInconsistenceMessage(trackingCheck.message);
+    }
+
+    if(isTautologyCheckEnabled){
+      tautologyCheck = new TautologyInconsistencies().handle(false);
+      setTautologyMessage(tautologyCheck.message);
+    }
 
     if (
-      loopCheck.hasInconsistencies ||
-      trackingCheck.hasInconsistencies ||
-      tautologyCheck.hasInconsistencies
+      loopCheck?.hasInconsistencies ||
+      trackingCheck?.hasInconsistencies ||
+      tautologyCheck?.hasInconsistencies
     ) {
       showWarningToast('Foi encontrada alguma inconsistência no fluxo.');
     } else {
@@ -58,6 +82,48 @@ export const InconsistenciesForm = (): JSX.Element => {
           Condições de saída de blocos ou de execução de ações com tautologia
         </li>
       </ul>
+
+      <Flex marginTop={2}>
+          <Switch
+            isChecked={isLoopCheckEnabled}
+            name="isLoopCheckEnabled"
+            onChange={(e) => setIsLoopCheckEnabled(e.target.checked)}
+          />
+
+          <Block marginLeft={2}>
+            <BdsTypo bold="extra-bold" variant="fs-14">
+              Verificar a existência de loops
+            </BdsTypo>
+          </Block>
+      </Flex>
+
+      <Flex marginTop={2}>
+          <Switch
+            isChecked={isTrackingCheckEnabled}
+            name="isTrackingCheckEnabled"
+            onChange={(e) => setIsTrackingCheckEnabled(e.target.checked)}
+          />
+
+          <Block marginLeft={2}>
+            <BdsTypo bold="extra-bold" variant="fs-14">
+              Verificar trackings potencialmente nulas
+            </BdsTypo>
+          </Block>
+      </Flex>
+
+      <Flex marginTop={2}>
+          <Switch
+            isChecked={isTautologyCheckEnabled}
+            name="isTautologyCheckEnabled"
+            onChange={(e) => setIsTautologyCheckEnabled(e.target.checked)}
+          />
+
+          <Block marginLeft={2}>
+            <BdsTypo bold="extra-bold" variant="fs-14">
+              Verificar tautologias
+            </BdsTypo>
+          </Block>
+      </Flex>
 
       <Block marginTop={2}>
         <BdsButton
