@@ -54,6 +54,14 @@ const DEFAULT_TAGS: Tag[] = [
   {
     name: 'ProcessContentAssistant',
     color: '#6B6B6B',
+  },
+  {
+    name: 'UserInput',
+    color: '#000000',
+  },
+  {
+    name: 'SendMessage',
+    color: '#EE82EE',
   }
 ];
 
