@@ -12,9 +12,10 @@ export const updateTags = (blockId: string): void => {
   if (!blockId) return;
 
   const block = getBlockById(blockId);
-
-  block.$tags = [];
   const actionsType = getUniqActions(block);
+  const customTags = block.$tags.filter((tag) => isDifferentOfActionTag(tag, actionsType));
+
+  block.$tags = customTags;
 
   actionsType.forEach((actionType: BlipActionType) => {
     const newTag = createTag(actionType);
@@ -53,3 +54,6 @@ const getTagColor = (actionType: BlipActionType): string => {
 
   return matchedAction ? matchedAction?.color : '';
 };
+
+const isDifferentOfActionTag = (tag: BlipTag, actionsType: string[]): boolean => 
+  !actionsType.includes(tag.label);

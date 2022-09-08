@@ -63,7 +63,7 @@ export const selectBlock = (id: string): void => {
   });
 };
 
-export const getUniqActions = (block: BlipFlowBlock): BlipActionType[] => {
+export const getUniqActions = (block: BlipFlowBlock): string[] => {
   const allActions = getAllActions(block);
   const typeActions = allActions.map((action) => action.type);
 
