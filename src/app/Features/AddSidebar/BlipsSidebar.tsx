@@ -88,14 +88,14 @@ export const BlipsSidebar = ({ onClose }: BlipsSidebarProps): JSX.Element => {
                 </BlipAccordionBody>
               </BlipAccordionItem>
 
-            <BlipAccordionItem>
+              {/* <BlipAccordionItem>
                 <BlipAccordionHeader marginTop={5}>
                   <BlipAccordionButton title="Renomear variável" />
                 </BlipAccordionHeader>
                 <BlipAccordionBody>
                   <ReplaceVariableForm />
                 </BlipAccordionBody>
-              </BlipAccordionItem>
+              </BlipAccordionItem> */}
             </BlipAccordion>
           </Block>
         </div>
