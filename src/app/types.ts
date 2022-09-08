@@ -222,3 +222,6 @@ export type BlipTypeOfContent =
   | 'web-link'
   | 'http-content'
   | 'raw-content';
+
+export type BlipTypeTags = BlipActionType 
+  | 'UserInput';
