@@ -9,6 +9,9 @@ import {
 } from '~/types';
 import { getBlockById, getUniqActions } from '~/Utils';
 
+const SEND_MESSAGE_TYPE = 'SendMessage';
+const USER_INPUT_TYPE = 'UserInput';
+
 /**
  * Updates the tags of a given block
  *
@@ -24,6 +27,76 @@ export const updateTags = (blockId: string): void => {
   setTagsForBlockActions(block);
   setTagForBlockMessages(block);
   setTagForUserInput(block);
+};
+
+/**
+ * Verify if the tag is different of some a @param personalTags
+ *
+ * @param tag a tag used on the comparison
+ */
+const isDifferentOfActionTag = (tag: BlipTag): boolean => {
+  return !(
+    Settings.personalTags.filter(
+      (personalTags) => personalTags.name === tag.label
+    ).length > 0
+  );
+};
+
+/**
+ * Set the tags for the blip actions (script, variable, http requests, etc)
+ *
+ * @param block block that will have it's tags updated
+ */
+const setTagsForBlockActions = (block: BlipFlowBlock): void => {
+  const actionsType = getUniqActions(block);
+
+  actionsType.forEach((actionType: BlipActionType) => {
+    setTag(block, actionType);
+  });
+};
+
+/**
+ * Set the tags for the blocks that have a message
+ *
+ * @param block block that will have it's tags updated
+ */
+ const setTagForBlockMessages = (block: BlipFlowBlock): void => {
+  const blockAction = getActionsFromBlock(block);
+
+  if (blockAction) {
+    const blockHasMessage = blockAction.action.type === SEND_MESSAGE_TYPE;
+
+    if (blockHasMessage) {
+      setTag(block, SEND_MESSAGE_TYPE);
+    }
+  }
+};
+
+/**
+ * Set the tags for the blocks that have an input
+ *
+ * @param block block that will have it's tags updated
+ */
+const setTagForUserInput = (block: BlipFlowBlock): void => {
+  const inputAction = getInputAction(block);
+  const hasInputOnBlock = !inputAction.input.bypass;
+
+  if (hasInputOnBlock) {
+    setTag(block, USER_INPUT_TYPE);
+  }
+};
+
+/**
+ * Set the tags givin a BlipTypeTags
+ *
+ * @param block block that will have it's tags updated
+ * @param actionType action that will be used in a tag event
+ */
+const setTag = (block: BlipFlowBlock, actionType: BlipTypeTags): void => {
+  const newTag = createTag(actionType);
+  if (newTag) {
+    block.$tags.push(newTag);
+  }
 };
 
 /**
@@ -56,52 +129,19 @@ const getTagColor = (actionType: BlipTypeTags): string => {
   return matchedAction ? matchedAction?.color : '';
 };
 
-const isDifferentOfActionTag = (tag: BlipTag): boolean => {
-  return !(
-    Settings.personalTags.filter(
-      (personalTags) => personalTags.name === tag.label
-    ).length > 0
-  );
-};
-
-const setTagsForBlockActions = (block: BlipFlowBlock): void => {
-  const actionsType = getUniqActions(block);
-
-  actionsType.forEach((actionType: BlipActionType) => {
-    setTag(block, actionType);
-  });
-};
-
-const setTagForUserInput = (block: BlipFlowBlock): void => {
-  const inputAction = getInputAction(block);
-  const hasInputOnBlock = !inputAction.input.bypass;
-
-  if (hasInputOnBlock) {
-    setTag(block, 'UserInput');
-  }
-};
-
-const setTagForBlockMessages = (block: BlipFlowBlock): void => {
-  const blockAction = getActionsFromBlock(block);
-
-  if (blockAction) {
-    const blockHasMessage = blockAction.action.type === 'SendMessage';
-
-    if (blockHasMessage) {
-      setTag(block, 'SendMessage');
-    }
-  }
-};
-
+/**
+ * Return a input action on block
+ *
+ * @param block block that will have it's tags updated
+ */
 const getInputAction = (block: BlipFlowBlock): BlipContentAction =>
   block.$contentActions.find((contentAction) => contentAction['input']);
 
+/**
+ * Return all actions on the block
+ *
+ * @param block block that will have it's tags updated
+ */
 const getActionsFromBlock = (block: BlipFlowBlock): BlipContentAction =>
   block.$contentActions.find((contentAction) => contentAction['action']);
 
-const setTag = (block: BlipFlowBlock, actionType: BlipTypeTags): void => {
-  const newTag = createTag(actionType);
-  if (newTag) {
-    block.$tags.push(newTag);
-  }
-};
