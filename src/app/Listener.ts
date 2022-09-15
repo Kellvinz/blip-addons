@@ -27,12 +27,14 @@ window.addEventListener('message', async (message: Message<any>) => {
     const { code, type, args } = message.data;
     const Feature = getFeature(code);
 
+    if(!Feature) return;
+
     /**
      * Runs the feature and update its states, as features may
      * have different settings
      */
     if (type === 'run') {
-      if (Feature.canRun) {
+      if (Feature?.canRun) {
         const featureInstance = new Feature();
         // eslint-disable-next-line prefer-spread
         const handleResult = await featureInstance.handle.apply(
@@ -53,8 +55,7 @@ window.addEventListener('message', async (message: Message<any>) => {
      * to undo the changes when user leaves the page.
      */
     if (type === 'cleanup') {
-      const shouldRun = Feature.shouldAlwaysClean || !Feature.isCleaned;
-
+      const shouldRun = Feature?.shouldAlwaysClean || !Feature?.isCleaned;
       if (shouldRun) {
         const hasCleaned = await new Feature().cleanup();
 
