@@ -18,7 +18,7 @@
     "service_worker": "js/background.js"
   },
   "permissions": ["storage"],
-  "host_permissions": ["*://*.blip.ai/*"],
+  "host_permissions": ["*://*.blip.ai/application/*"],
   "web_accessible_resources": [
     {
       "resources": ["js/listener.js"],
@@ -28,7 +28,7 @@
   "content_scripts": [
     {
       "run_at": "document_end",
-      "matches": ["*://*.blip.ai/*"],
+      "matches": ["*://*.blip.ai/application/*"],
       "js": ["js/content.js"]
     }
   ]

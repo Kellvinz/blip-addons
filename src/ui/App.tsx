@@ -7,7 +7,7 @@ import {
 } from 'blip-ds/dist/blip-ds-react';
 
 import { Flex } from '@components/Flex';
-import { ISSUES_URL, REPOSITORY_URL } from '~/Constants';
+import { ISSUES_URL } from '~/Constants';
 import { setSettings } from '~/Settings';
 
 import { KeywordsConfig } from './pages/KeywordConfig';
@@ -35,12 +35,6 @@ const Pages = {
 };
 
 type Page = keyof typeof Pages | 'home';
-
-const openRepository = (): void =>
-  chrome.tabs.create({
-    active: true,
-    url: REPOSITORY_URL,
-  });
 
 const openIssue = (): void =>
   chrome.tabs.create({
@@ -84,14 +78,6 @@ export const App = (): JSX.Element => {
             ))}
 
             <h3>Endereços externos</h3>
-
-            <BdsButton
-              icon="external-file"
-              variant="secondary"
-              onClick={openRepository}
-            >
-              Repositório do Github
-            </BdsButton>
 
             <BdsButton icon="warning" variant="secondary" onClick={openIssue}>
               Reportar problema
