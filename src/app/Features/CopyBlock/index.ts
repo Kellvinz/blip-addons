@@ -1,5 +1,5 @@
 import { BaseFeature } from '@features/BaseFeature';
-import { getBlockById, getBotName, showSuccessToast } from '~/Utils';
+import { getBlockById, getBotId, showSuccessToast } from '~/Utils';
 import type { BlipsCopy } from '~/types';
 
 export class CopyBlock extends BaseFeature {
@@ -51,7 +51,7 @@ export class CopyBlock extends BaseFeature {
     window.navigator.clipboard.writeText(
       JSON.stringify({
         isCopyFromBlips: true,
-        originBot: getBotName(),
+        originBot: getBotId(),
         blocksCode,
       } as BlipsCopy)
     );

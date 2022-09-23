@@ -5,53 +5,74 @@ import {
   removeOverlay,
   showSuccessToast,
 } from '~/Utils';
-import { ConditionViewModel } from '~/types';
 import { Paragraph } from '@components';
+import { BlipAction, BlipFlowBlock, BlipCondiction, InconsistencyModel } from '../../../types';
 import * as React from 'react';
 import { BdsButton } from 'blip-ds/dist/blip-ds-react';
 
 const TRACKING_ACTION_NAME = 'TrackEvent';
 const EMPTY_STRING = '';
-const EMPTY_REACT_TEMPLATE = <></>;
+const NOT_EQUAL_CONDITION = 'notEquals';
+const NOT_EXISTS_CONDITION = 'notExists';
+const DEFAULT_USER_INPUT_VARIABLE = 'input.content';
+const DEFAULT_USER_INPUT_SOURCE = 'input';
+const DEFAULT_COMPARISON = 'exists';
+const DEFAULT_CONDITION_SOURCE = 'context';
 
 export class TrackingsInconsistencies extends BaseFeature {
-  // public static isUserTriggered = true
-  // public static shouldRunOnce = true;
   /**
    * Check for Inconsistencies on the flow
    */
-  public handle(hasToSetVariable: boolean): any {
+  public handle(hasToSetVariable: boolean): InconsistencyModel {
+    const trackingsWithProblems =
+      this.voidableTrackingsHandle(hasToSetVariable);
+
+    return {
+      message: this.getTrackingMessage(trackingsWithProblems),
+      hasInconsistencies: trackingsWithProblems.length > 0,
+    };
+  }
+
+  private voidableTrackingsHandle = (isToCorrect: boolean): BlipAction[] => {
+    let trackingsWithProblems = [];
     const blocks = getBlocks();
-    let trackingActions = [];
+
+    if (isToCorrect) {
+      this.fixVoidableTrackings(blocks);
+    } else {
+      trackingsWithProblems = this.getVoidableTrackings(blocks);
+    }
+
+    return trackingsWithProblems;
+  };
+
+  private getVoidableTrackings = (blocks: BlipFlowBlock[]): BlipAction[] => {
+    let trackingActionsArray = [];
     const trackingsWithProblems = [];
 
     for (const block of blocks) {
-      trackingActions = getTrackingEventActions(block);
-
-      if (hasTrackEvent(trackingActions)) {
-        for (const action of trackingActions) {
-          if (actionCanBeNull(action)) {
-            trackingsWithProblems.push(action);
-            if (hasToSetVariable) {
-              setVariableExistingCondition(action);
-            }
-          }
+      trackingActionsArray = this.getTrackingEventActions(block);
+      for (const trackingAction of trackingActionsArray) {
+        if (this.actionCanBeNull(trackingAction)) {
+          trackingsWithProblems.push(trackingAction);
         }
       }
     }
+    return trackingsWithProblems;
+  };
 
-    if (trackingsWithProblems.length > 0 && !hasToSetVariable) {
-      return {
-        trackingMessage: this.getTrackingMessage(trackingsWithProblems),
-        hasTrackings: true,
-      };
-    } else {
-      return {
-        trackingMessage: EMPTY_REACT_TEMPLATE,
-        hasTrackings: false,
-      };
+  private fixVoidableTrackings = (blocks: BlipFlowBlock[]): void => {
+    let trackingActionsArray = [];
+
+    for (const block of blocks) {
+      trackingActionsArray = this.getTrackingEventActions(block);
+      for (const trackingAction of trackingActionsArray) {
+        if (this.actionCanBeNull(trackingAction)) {
+          this.setVariableExistingCondition(trackingAction);
+        }
+      }
     }
-  }
+  };
 
   private handleSubmit = (): void => {
     createConfirmationAlert({
@@ -59,17 +80,43 @@ export class TrackingsInconsistencies extends BaseFeature {
       onConfirm: () => {
         this.handle(true);
         removeOverlay();
+        showSuccessToast('Trackings Corrigidas!');
       },
     });
-
-    showSuccessToast('Trackings Corrigidas!');
   };
 
-  private getTrackingMessage = (list: string[]): any => {
+  private getTrackingMessage = (trackingsList: BlipAction[]): React.ReactElement => {
     return (
       <>
         <h4>Trackings</h4>
-        {this.getHtmlList(list)}
+
+        {trackingsList.length > 0 ? (
+          this.getTrackingsErrorMessage(trackingsList)
+        ) : (
+          <Paragraph>
+            Nenhuma tracking com ação potencialmente nula identificada
+          </Paragraph>
+        )}
+      </>
+    );
+  };
+
+  private getTrackingsErrorMessage = (trackingsList: BlipAction[]): React.ReactElement => {
+    return (
+      <>
+        <ul
+          style={{
+            fontSize: '0.875rem',
+            marginTop: '0.5rem',
+            color: '#607b99',
+          }}
+        >
+          {trackingsList.map((tracking, index) => (
+            <li key={index}>
+              {tracking.blockName} - {tracking.$title}
+            </li>
+          ))}
+        </ul>
 
         <Paragraph>
           * Você deve alterar as condições de execução de trackings destes
@@ -80,91 +127,106 @@ export class TrackingsInconsistencies extends BaseFeature {
         </Paragraph>
 
         <BdsButton type="submit" variant="primary" onClick={this.handleSubmit}>
-          Definir
+          Corrigir Trackings
         </BdsButton>
       </>
     );
   };
 
-  private getHtmlList = (list: any[]): any => {
-    return (
-      <ul
-        style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#607b99' }}
-      >
-        {list.map((text, index) => (
-          <li key={index}>{text['$title']}</li>
-        ))}
-      </ul>
-    );
-  };
-}
-
-const actionCanBeNull = (action: any): boolean => {
-  const conditionVariable = getTrackingActionVariable(action);
-
-  if (hasConditionVariable(conditionVariable)) {
-    const processedConditionVariable = conditionVariable
-      .replace('}}', '')
-      .replace('{{', '');
-
-    if (action.conditions.length === 0) {
-      return true;
-    }
-
-    if (
-      processedConditionVariable === 'input.content' &&
-      !!action.conditions.find((x) => x.source === 'input')
-    ) {
+  private actionCanBeNull = (trackingAction: BlipAction): boolean => {
+    try {   
+      const conditionVariable = this.getTrackingActionVariable(trackingAction);
+  
+      if (this.hasConditionVariable(conditionVariable)) {
+        const processedConditionVariable = conditionVariable
+          .replace('}}', '')
+          .replace('{{', '');
+  
+        if (
+          processedConditionVariable === DEFAULT_USER_INPUT_VARIABLE &&
+          trackingAction?.conditions &&
+          !!trackingAction?.conditions?.find(
+            (condition) =>
+              condition.source === DEFAULT_USER_INPUT_SOURCE &&
+              condition.comparison !== NOT_EQUAL_CONDITION &&
+              condition.comparison !== NOT_EXISTS_CONDITION
+          )
+        ) {
+          return false;
+        }
+  
+        return trackingAction?.conditions &&
+        !trackingAction?.conditions?.find(
+          (condition) =>
+            condition.comparison !== NOT_EQUAL_CONDITION &&
+            condition.comparison !== NOT_EXISTS_CONDITION &&
+            condition.variable === processedConditionVariable
+        );
+      } else {
+        return false;
+      }
+    } catch (error) {
       return false;
     }
+  };
 
-    return !action.conditions.find(
-      (x) => x.variable === processedConditionVariable
-    );
-  } else {
-    return false;
-  }
-};
+  private setVariableExistingCondition = (trackingAction: BlipAction): void => {
+    const conditionVariable = this.getTrackingActionVariable(trackingAction);
 
-const setVariableExistingCondition = (action: any): void => {
-  const conditionVariable = getTrackingActionVariable(action);
-
-  if (hasConditionVariable(conditionVariable)) {
     const trackingVariable = conditionVariable
       .replace('{{', '')
       .replace('}}', '');
 
-    const trackingCondition: ConditionViewModel = {
-      comparison: 'exists',
-      source: 'context',
+    const trackingCondition: BlipCondiction = {
+      comparison: DEFAULT_COMPARISON,
+      source: DEFAULT_CONDITION_SOURCE,
       values: [],
       variable: trackingVariable,
     };
-    action.conditions.push(trackingCondition);
-  }
-};
 
-const getTrackingEventActions = (block: any): any => {
-  return getAllActions(block).filter(isTracking);
-};
-const getAllActions = (block: any): any => [
-  ...block.$enteringCustomActions,
-  ...block.$leavingCustomActions,
-];
-const getTrackingActionVariable = (action: any): string => {
-  const onlyVariableRegex = /^({{[\w@.]+}})$/i;
-  const trackingActionVariable = onlyVariableRegex.exec(action.settings.action);
+    trackingAction.conditions.push(trackingCondition);
+  };
 
-  if (trackingActionVariable) {
-    return trackingActionVariable[0];
-  }
+  private getTrackingEventActions = (block: BlipFlowBlock): BlipAction[] => {
+    return this.getAllActions(block).filter(this.isTracking);
+  };
 
-  return EMPTY_STRING;
-};
+  private getAllActions = (block: BlipFlowBlock): BlipAction[] => {
+    const blockName = block.$title;
 
-const hasTrackEvent = (trackingActions: any): boolean =>
-  trackingActions.length !== 0;
-const isTracking = (action: any): boolean =>
-  action.type === TRACKING_ACTION_NAME;
-const hasConditionVariable = (conditionVariable: any): boolean =>
-  conditionVariable !== EMPTY_STRING;
+    return [
+      ...block.$enteringCustomActions.map((action) =>
+        this.insertBlockNameOnAction(action, blockName)
+      ),
+      ...block.$leavingCustomActions.map((action) =>
+        this.insertBlockNameOnAction(action, blockName)
+      ),
+    ];
+  };
+
+  private insertBlockNameOnAction = (
+    action: BlipAction,
+    blockName: string
+  ): BlipAction => {
+    return { ...action, blockName: blockName };
+  };
+
+  private getTrackingActionVariable = (trackingAction: BlipAction): string => {
+    const onlyVariableRegex = /^({{[\w@.]+}})$/i;
+    const trackingActionVariable = onlyVariableRegex.exec(
+      trackingAction.settings.action
+    );
+
+    if (trackingActionVariable) {
+      return trackingActionVariable[0];
+    }
+
+    return EMPTY_STRING;
+  };
+
+  private isTracking = (action: BlipAction): boolean =>
+    action?.type === TRACKING_ACTION_NAME;
+
+  private hasConditionVariable = (conditionVariable: string): boolean =>
+    conditionVariable !== EMPTY_STRING;
+}

@@ -1,5 +1,5 @@
-import { BlipsExtension } from './BlipsExtension';
+import { BlipAddons } from './BlipAddons';
 
-const extension = new BlipsExtension().start();
+const extension = new BlipAddons().start();
 
 extension.onBuilderLoad(extension.runFeatures);

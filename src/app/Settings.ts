@@ -1,3 +1,4 @@
+import { DEFAULT_TAGS } from '@features/AutoTag/Constants';
 import { SettingsUpdate } from './types';
 
 export const Settings = {
@@ -10,6 +11,7 @@ export const Settings = {
   betaKey: ['beta'],
   devKey: ['dev'],
   personalSnippets: [],
+  personalTags: DEFAULT_TAGS
 };
 
 export const mergeSettings = (newSettings: Partial<typeof Settings>): void => {

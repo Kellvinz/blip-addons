@@ -4,6 +4,4 @@ export const HOME_ITEM_ID = 'blip-addons-home-menu-item';
 
 export const OVERLAY_ID = 'blip-addons-overlay';
 
-export const REPOSITORY_URL = 'https://github.com/jotaajunior/blip-addons';
-
-export const ISSUES_URL = 'https://github.com/jotaajunior/blip-addons/issues';
+export const ISSUES_URL = 'https://forum.blip.ai/t/conheca-o-blip-addons-uma-ferramenta-para-empoderar-o-blip/17820';

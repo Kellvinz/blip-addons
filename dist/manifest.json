@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "manifest_version": 3,
   "description": "Collection of Blip utilities",
-  "homepage_url": "https://github.com/jotaajunior/blip-addons",
+  "homepage_url": "https://github.com/pmartinsesa/blip-addons",
   "icons": {
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
@@ -18,7 +18,7 @@
     "service_worker": "js/background.js"
   },
   "permissions": ["storage"],
-  "host_permissions": ["*://*.blip.ai/*"],
+  "host_permissions": ["*://*.blip.ai/application/*"],
   "web_accessible_resources": [
     {
       "resources": ["js/listener.js"],
@@ -28,7 +28,7 @@
   "content_scripts": [
     {
       "run_at": "document_end",
-      "matches": ["*://*.blip.ai/*"],
+      "matches": ["*://*.blip.ai/application/*"],
       "js": ["js/content.js"]
     }
   ]

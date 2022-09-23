@@ -7,20 +7,20 @@ export enum Shapes {
   LOWER_CONCAVE = '0 0 50% 50%',
   UPPER_CONCAVE = '50% 50% 0 0',
   RIGHT_CONCAVE = '0 50% 50% 0',
-  MAIN_DIAGONAL_CONCAVE = '50% 0 50% 0',
-  SECONDARY_DIAGONAL_CONCAVE = '0 50% 0 50%',
+  MAIN_DIAGONAL_CONCAVE = '0 50% 0 50%',
+  SECONDARY_DIAGONAL_CONCAVE = '50% 0 50% 0',
   DEFAULT = 'default',
 }
 
-export const colorBlockBackground = (color: string, block: any): void => {
+export const colorBlockBackground = (color: string, block: HTMLElement): void => {
   block.style.background = color;
 };
 
-export const colorBlockText = (color: string, block: any): void => {
+export const colorBlockText = (color: string, block: HTMLElement): void => {
   block.style.color = color;
 };
 
-export const formatShapeBlock = (shape: Shapes, block: any): void => {
+export const formatShapeBlock = (shape: Shapes, block: HTMLElement): void => {
   block.style.borderRadius = shape;
 
   if (shape === Shapes.DEFAULT) {

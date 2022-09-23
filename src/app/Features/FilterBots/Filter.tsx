@@ -11,7 +11,7 @@ export type FilterProps = {
 
 export const Filter = ({ onChange }: FilterProps): JSX.Element => {
   return (
-    <Flex gap={5}>
+    <Flex marginLeft={18}>
       <BdsSelect
         onBdsChange={onChange}
         label="Filtrar por ambiente"

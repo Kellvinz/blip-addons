@@ -1,12 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-
 import {
   ConfirmationAlert,
   ConfirmationAlertProps,
 } from '@features/RemoveGlobalTrackings/ConfirmationAlert';
 import { OVERLAY_ID } from './Constants';
-import type { FeatureRequest } from './types';
+import type { FeatureRequest, BlipFlowBlock, BlipAction, BlipActionType } from './types';
 import { VariantType } from 'blip-ds/dist/types/components/toast/toast-interface';
 
 const BUILDER_HTML_BLOCK_TAG = 'builder-node';
@@ -21,13 +20,21 @@ export const getFlow = (): any => {
   return getController().flow;
 };
 
-export const getBlocks = (): any[] => {
+export const getSelectedNodes = (): string[] => {
+  return getController().selectedNodes.map(n => n.id);
+};
+
+export const getBlocks = (): BlipFlowBlock[] => {
   return Object.values(getFlow());
 };
 
-export const getBlockById = (id: string): any => {
+export const getBlockById = (id: string): BlipFlowBlock => {
   return getFlow()[id];
 };
+
+export const getEditingBlock = (): BlipFlowBlock => {
+  return getController().editingState;
+}  
 
 export const showSuccessToast = (message: string): void => {
   getController().ngToast.success(message);
@@ -56,8 +63,33 @@ export const selectBlock = (id: string): void => {
   });
 };
 
+export const getUniqActions = (block: BlipFlowBlock): string[] => {
+  const allActions = getAllActions(block);
+  const typeActions = allActions.map((action) => action.type);
+
+  return [...new Set(typeActions)];
+};
+
+export const getAllActions = (block: BlipFlowBlock): BlipAction[] => {
+  const enteringActions = block.$enteringCustomActions;
+  const leavingActions = block.$leavingCustomActions;
+
+  return [...enteringActions, ...leavingActions];
+};
+
 export const cleanSelectedNodes = (): void => {
   getController().selectedNodes = [];
+};
+
+export const switchBlipFunction = (
+  functionToSwap: string,
+  surrogateFunction: () => void
+): void => {
+  const controller = getController();
+
+  controller[functionToSwap] = function keepThis() {
+    return setTimeout(() => surrogateFunction());
+  };
 };
 
 export const interceptFunction = (
@@ -117,8 +149,33 @@ export const getBotName = (): string | false => {
   return false;
 };
 
+export const getBotId = (): string => {
+  const controller = getController();
+
+  if (controller.application && controller.application.shortName) {
+    return controller.application.shortName;
+  }
+
+  return '';
+};
+
+export const getRandom = (max: number): number =>
+  Math.floor(Math.random() * max);
+
 export const createNearbyPosition = (): { left: string; top: string } => {
-  return getController().createNearbyPosition();
+  const canvas = document.querySelector('#canvas') as HTMLElement;
+
+  const left = `${
+    getRandom(200) + canvas.scrollLeft + canvas.offsetWidth / 2
+  }px`;
+  const top = `${
+    getRandom(100) + canvas.scrollTop + canvas.offsetHeight / 2
+  }px`;
+
+  return {
+    left,
+    top,
+  };
 };
 
 export const getSpace = (): any => {
@@ -129,15 +186,15 @@ export const getHandleOnKeyDown = (): any => {
   return getController().handleOnKeyDown;
 };
 
-export const getFlowBlockById = (id: string): any => {
+export const getFlowBlockById = (id: string): HTMLElement => {
   return document.querySelector(`${BUILDER_HTML_BLOCK_TAG}[id="${id}"]`);
 };
 
-export const getAllFlowBlock = (): any => {
+export const getAllFlowBlock = (): NodeListOf<Element> => {
   return document.querySelectorAll(`${BUILDER_HTML_BLOCK_TAG}`);
 };
 
-export const rgbToHex = (r: any, g: any, b: any): any =>
+export const rgbToHex = (r: any, g: any, b: any): string =>
   '#' +
   [r, g, b]
     .map((x) => {
@@ -146,7 +203,7 @@ export const rgbToHex = (r: any, g: any, b: any): any =>
     })
     .join('');
 
-export const hexToRgb = (hex): any => {
+export const hexToRgb = (hex: string): any => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
     ? {
@@ -158,17 +215,9 @@ export const hexToRgb = (hex): any => {
 };
 
 export const getContrastColor = (color: any): string => {
-  const brightness = 1;
+  const yiq = (color.r * 299 + color.g * 587 + color.b * 114) / 1000;
 
-  const r = color.r;
-  const g = color.g;
-  const b = color.b;
-
-  const ir = Math.floor((255 - r) * brightness);
-  const ig = Math.floor((255 - g) * brightness);
-  const ib = Math.floor((255 - b) * brightness);
-
-  return rgbToHex(ir, ig, ib);
+  return yiq >= 128 ? '#000' : '#fff';
 };
 
 export const createOverlay = (): HTMLElement => {
@@ -220,7 +269,7 @@ export const createToast = ({
   toastText,
   toastTitle,
   variant,
-  duration = 1
+  duration = 1,
 }: ToastProps): void => {
   const toast = document.createElement('bds-toast');
 

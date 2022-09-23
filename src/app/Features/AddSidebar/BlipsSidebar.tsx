@@ -12,6 +12,7 @@ import { GlobalInactivityForm } from '~/Features/SetInactivity/GlobalInactivityF
 import { SetGlobalTrackingsForm } from '~/Features/SetGlobalTrackings/SetGlobalTrackingsForm';
 import { RemoveGlobalTrackingsForm } from '~/Features/RemoveGlobalTrackings/RemoveGlobalTrackingsForm';
 import { InconsistenciesForm } from '~/Features/CheckInconsistencies/InconsistenciesForm';
+import { ReplaceVariableForm } from '~/Features/ReplaceVariable/ReplaceVariableForm';
 
 export type BlipsSidebarProps = {
   onClose: () => void;
@@ -86,6 +87,15 @@ export const BlipsSidebar = ({ onClose }: BlipsSidebarProps): JSX.Element => {
                   <InconsistenciesForm />
                 </BlipAccordionBody>
               </BlipAccordionItem>
+
+              {/* <BlipAccordionItem>
+                <BlipAccordionHeader marginTop={5}>
+                  <BlipAccordionButton title="Renomear variável" />
+                </BlipAccordionHeader>
+                <BlipAccordionBody>
+                  <ReplaceVariableForm />
+                </BlipAccordionBody>
+              </BlipAccordionItem> */}
             </BlipAccordion>
           </Block>
         </div>

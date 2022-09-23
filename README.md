@@ -6,7 +6,6 @@
 
 [![Download at Chrome Store](.github/chrome.png)](https://chrome.google.com/webstore/detail/blip-addons/niopbdedfbgmagppkckachanclmdomeg)
 
-
 This extension provides a collection of utilities for working with [Blip](https://portal.blip.ai/).
 
 ## Features
@@ -63,11 +62,11 @@ We encourage you to contribute with the project, even if you don't work at [Take
 
 ### Have a feature request?
 
-Suggest the feature at [Blips Discussions](https://github.com/jotaajunior/blips-extension/discussions) tab. Don't start working on a new feature before collecting the feedback.
+Suggest the feature at [Discussions](https://github.com/jotaajunior/blips-extension/discussions) tab. Don't start working on a new feature before collecting the feedback.
 
 ### Did you find a bug?
 
-- Ensure that you running the latest version of Blips.
+- Ensure that you running the latest version of Blip Addons.
 - Ensure that the bug was not already reported.
 - If you're unable to find an open issue, [open a new one](https://github.com/jotaajunior/blips-extension/issues).
 - Make sure to include relevant information about the bug.
