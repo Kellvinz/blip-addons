@@ -1,4 +1,5 @@
 import { BaseFeature } from '@features/BaseFeature';
+import { Settings } from '~/Settings';
 import {
   switchBlipFunction,
   getController,
@@ -19,10 +20,12 @@ export class AutoTag extends BaseFeature {
    * Intercept the functions of close sidebar, and set the new tags of a given block
    */
   public handle(): boolean {
-    interceptFunction(
-      OPEN_BUILDER_NODE_EVENT,
-      this.interceptCloseSidebarFunctions
-    );
+    if(Settings.isAutoTagActive) {
+      interceptFunction(
+        OPEN_BUILDER_NODE_EVENT,
+        this.interceptCloseSidebarFunctions
+      );
+    }
 
     return true;
   }
