@@ -22,8 +22,9 @@ import { DEFAULT_TAGS } from '@features/AutoTag/Constants';
 
 export const TagsConfig = (): JSX.Element => {
   const [tagsSettings, setTagsSettings] = React.useState(Settings.personalTags);
-  const [isAutoTagActive, setIsAutoTagActive] = React.useState(Settings.isAutoTagActive);
-
+  const [isAutoTagActive, setIsAutoTagActive] = React.useState(
+    Settings.isAutoTagActive
+  );
 
   React.useEffect(() => {
     chrome.storage.sync.get('settings', ({ settings }) => {
@@ -40,14 +41,14 @@ export const TagsConfig = (): JSX.Element => {
       toastText: 'Tags atualizadas com sucesso',
       toastTitle: 'Sucesso!',
       variant: 'success',
-      duration: 2,
+      duration: 2
     });
   };
 
   const updateIsAutoTagActive = (): void => {
-    setSettings({isAutoTagActive: !isAutoTagActive});
+    setSettings({ isAutoTagActive: !isAutoTagActive });
     setIsAutoTagActive(!isAutoTagActive);
-  }
+  };
 
   const setDefaultTags = (): void => {
     setTagsSettings([...DEFAULT_TAGS]);
@@ -72,39 +73,35 @@ export const TagsConfig = (): JSX.Element => {
   const onTagActiveChange = (index: number): void => {
     tagsSettings[index].isActive = !tagsSettings[index].isActive;
     setTagsSettings([...tagsSettings]);
-  }
+  };
 
   const getAccorionItems = (tagsSettings: Tag[]): JSX.Element[] => {
     const defaultTagsMapped = tagsSettings.map((tag: Tag, index: number) => {
       return (
-        <>
-          <BlipAccordionItem borderTop={0} key={index}>
-            <BlipAccordionHeader>
-              <Flex className="justify-between" alignItems="center">
-                <BlipAccordionButton title={tag.name} />
-                <Circle width={20} height={20} backgroundColor={tag.color} />
-              </Flex>
-            </BlipAccordionHeader>
-            <BlipAccordionBody>
-              <ColorPalette
-                id={index.toString()}
-                onColorChange={onColorChange}
-                defaultColor={tag.color}
+        <BlipAccordionItem borderTop={0} key={tag.name}>
+          <BlipAccordionHeader>
+            <Flex className="justify-between" alignItems="center">
+              <BlipAccordionButton title={tag.name} />
+              <Circle width={20} height={20} backgroundColor={tag.color} />
+            </Flex>
+          </BlipAccordionHeader>
+          <BlipAccordionBody>
+            <ColorPalette
+              id={index.toString()}
+              onColorChange={onColorChange}
+              defaultColor={tag.color}
+            />
+            <HorizontalStack marginTop={2}>
+              <Switch
+                isChecked={tag.isActive}
+                name="overwrite"
+                onChange={() => onTagActiveChange(index)}
+                size="short"
               />
-              <HorizontalStack marginTop={2}>
-                <Switch
-                  isChecked={tag.isActive}
-                  name="overwrite"
-                  onChange={() => onTagActiveChange(index)}
-                  size="short"
-                />
-                <Paragraph>
-                  Habilitar {tag.name}.
-                </Paragraph>
-              </HorizontalStack>
-            </BlipAccordionBody>
-          </BlipAccordionItem>
-        </>
+              <Paragraph>Habilitar {tag.name}.</Paragraph>
+            </HorizontalStack>
+          </BlipAccordionBody>
+        </BlipAccordionItem>
       );
     });
 
@@ -114,7 +111,7 @@ export const TagsConfig = (): JSX.Element => {
   return (
     <Block padding={0}>
       <Paragraph>Modifique as suas tags e torne elas únicas!</Paragraph>
-      
+
       <Flex marginTop={2}>
         <Switch
           isChecked={isAutoTagActive}
