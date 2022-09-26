@@ -11,7 +11,8 @@ export const Settings = {
   betaKey: ['beta'],
   devKey: ['dev'],
   personalSnippets: [],
-  personalTags: DEFAULT_TAGS
+  personalTags: DEFAULT_TAGS,
+  isAutoTagActive: false
 };
 
 export const mergeSettings = (newSettings: Partial<typeof Settings>): void => {

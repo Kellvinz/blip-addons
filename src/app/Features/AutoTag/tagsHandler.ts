@@ -6,6 +6,7 @@ import {
   BlipFlowBlock,
   BlipTag,
   BlipTypeTags,
+  Tag,
 } from '~/types';
 import { getBlockById, getUniqActions } from '~/Utils';
 
@@ -93,9 +94,14 @@ const setTagForUserInput = (block: BlipFlowBlock): void => {
  * @param actionType action that will be used in a tag event
  */
 const setTag = (block: BlipFlowBlock, actionType: BlipTypeTags): void => {
-  const newTag = createTag(actionType);
-  if (newTag) {
-    block.$tags.push(newTag);
+  const tag = getPersonalTag(actionType);
+
+  if (tag.isActive) {
+    const newTag = createTag(tag);
+
+    if (newTag) {
+      block.$tags.push(newTag);
+    }
   }
 };
 
@@ -104,29 +110,29 @@ const setTag = (block: BlipFlowBlock, actionType: BlipTypeTags): void => {
  *
  * @param actionType action that will have its tag created
  */
-const createTag = (actionType: BlipTypeTags): BlipTag => {
+const createTag = (tag: Tag): BlipTag => {
   const tagId = `blip-tag-${uuid()}`;
-  const tagColor = getTagColor(actionType);
-
+  
   return {
     id: tagId,
-    label: actionType,
-    background: tagColor,
+    label: tag.name,
+    background: tag.color,
     canChangeBackground: false,
   };
 };
 
+
 /**
- * Returns a color for a tag given the action type
+ * Returns a tag given the action type
  *
  * @param actionType action that will get the color
  */
-const getTagColor = (actionType: BlipTypeTags): string => {
+ const getPersonalTag = (actionType: BlipTypeTags): Tag => {
   const matchedAction = Settings.personalTags.filter(
     (tag) => tag.name === actionType
   )[0];
 
-  return matchedAction ? matchedAction?.color : '';
+  return matchedAction;
 };
 
 /**
@@ -144,4 +150,3 @@ const getInputAction = (block: BlipFlowBlock): BlipContentAction =>
  */
 const getActionsFromBlock = (block: BlipFlowBlock): BlipContentAction =>
   block.$contentActions.find((contentAction) => contentAction['action']);
-
