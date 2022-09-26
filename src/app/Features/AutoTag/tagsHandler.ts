@@ -22,12 +22,14 @@ export const updateTags = (blockId: string): void => {
   if (!blockId) return;
 
   const block = getBlockById(blockId);
-  const customTags = block.$tags.filter(isDifferentOfActionTag);
-  block.$tags = customTags;
-
-  setTagsForBlockActions(block);
-  setTagForBlockMessages(block);
-  setTagForUserInput(block);
+  if(block.$tags) {
+    const customTags = block.$tags.filter(isDifferentOfActionTag);
+    block.$tags = customTags;
+  
+    setTagsForBlockActions(block);
+    setTagForBlockMessages(block);
+    setTagForUserInput(block);
+  }
 };
 
 /**
