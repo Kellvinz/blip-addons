@@ -2,6 +2,7 @@ import { getBlocks } from '~/Utils';
 import { BaseFeature } from '@features/BaseFeature';
 
 import { updateTags } from './tagsHandler';
+import { Settings } from '~/Settings';
 
 export class InitializeTags extends BaseFeature {
   public static shouldRunOnce = true;
@@ -10,11 +11,12 @@ export class InitializeTags extends BaseFeature {
    * Updates the tags of all blocks
    */
   public handle(): boolean {
-    const blocks = getBlocks();
-
-    blocks.forEach((block) => {
-      updateTags(block.id);
-    });
+    if (Settings.isAutoTagActive) {
+      const blocks = getBlocks();  
+      blocks.forEach((block) => {
+        updateTags(block.id);
+      });
+    }
 
     return true;
   }

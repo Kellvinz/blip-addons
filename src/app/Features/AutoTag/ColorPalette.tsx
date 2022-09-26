@@ -2,10 +2,11 @@ import * as React from 'react';
 
 import { PRESET_COLORS } from '@features/EditBlocks/Constants';
 import { TwitterPicker } from 'react-color';
+import { PaletteColor } from '~/types';
 
 export type ColorPaletteProps = {
   id: string;
-  onColorChange: (color: string, index: string) => void;
+  onColorChange: (color: PaletteColor, index: string) => void;
   defaultColor: string;
 };
 
@@ -14,9 +15,9 @@ export const ColorPalette = ({
   onColorChange,
   defaultColor,
 }: ColorPaletteProps): JSX.Element => {
-  const [color, setColor] = React.useState({ hex: defaultColor });
+  const [color, setColor] = React.useState<PaletteColor>({ hex: defaultColor });
 
-  const handleChange = (color): void => {
+  const handleChange = (color: PaletteColor): void => {
     setColor(color);
     onColorChange(color, id);
   };
