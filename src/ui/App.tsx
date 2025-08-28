@@ -13,6 +13,7 @@ import { setSettings } from '~/Settings';
 import { KeywordsConfig } from './pages/KeywordConfig';
 import { SnippetsConfig } from './pages/SnippetsConfig';
 import { TagsConfig } from './pages/TagsConfig';
+import { EventTrackingConfig } from './pages/EventTrackingConfig';
 
 const Pages = {
   keywordConfig: {
@@ -31,6 +32,11 @@ const Pages = {
     title: 'Configuração das tags',
     component: <TagsConfig />,
     icon: 'tag',
+  },
+  eventTrackingConfig: {
+    title: 'Configuração de Event Tracking',
+    component: <EventTrackingConfig />,
+    icon: 'robot',
   },
 };
 
