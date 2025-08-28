@@ -34,7 +34,13 @@ export class AutoTag extends BaseFeature {
    * Intercept the functions of close sidebar
    */
   private interceptCloseSidebarFunctions(): void {
-    const blockId = getEditingBlock().id;
+    const block = getEditingBlock();
+
+    if (!block) {
+      return;
+    }
+
+    const blockId = block.id;
 
     const closeSidebarButton = document.querySelectorAll(
       "span[ng-click^='$ctrl.closeSidebar']"

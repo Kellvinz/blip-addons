@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { BaseFeature } from '../BaseFeature';
 import { Settings } from '../../Settings';
-import { getEditingBlock, interceptFunction } from '../../Utils';
+import { getEditingBlock, interceptFunction, getController } from '../../Utils';
 import {
   ENTERING_TRACKING_ACTION,
   LEAVING_TRACKING_ACTIONS,
@@ -17,7 +17,6 @@ export class AutoEventTracking extends BaseFeature {
     if (Settings.isAutoEventTrackingActive) {
       interceptFunction(OPEN_BUILDER_NODE_EVENT, this.addEventTrackingsToBlock);
     }
-
     return true;
   }
 
@@ -70,8 +69,14 @@ export class AutoEventTracking extends BaseFeature {
       };
       block.$leavingCustomActions.push(leavingAction);
     });
+
+    const controller = getController();
+    if (controller) {
+      controller.$timeout(() => {});
+    }
   }
 }
+
 
 
 

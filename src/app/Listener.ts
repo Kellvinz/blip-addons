@@ -109,9 +109,9 @@ const isBlipsRequest = (request: any): request is BlipsRequest =>
   !!request.isBlipsRequest;
 const sendResponse = (message: Omit<BlipsResponse, 'isBlipsResponse'>): void =>
   sendMessage({ isBlipsResponse: true, ...message });
-const getFeature = (code): Feature =>
-  Features.find((Feature) => Feature.code === code);
-const getCommand = (code): Command =>
+const getFeature = (code: string): Feature =>
+  (Features as Feature[]).find((Feature) => Feature.code === code);
+const getCommand = (code: string): Command =>
   Commands.find((Command) => Command.code === code);
 const isSettingsUpdate = (message: any): message is SettingsUpdate =>
   message.isSettingsUpdate;

@@ -1,27 +1,54 @@
-import * as React from 'react';
-import { Switch } from '@components/Switch';
-import { Settings, setSettings } from '~/Settings';
+import * as React from "react";
+import { Block, HorizontalStack, Switch } from "@components";
+import { Settings, setSettings } from "~/Settings";
+import { BdsButton } from "blip-ds/dist/blip-ds-react";
+import { createToast } from "~/Utils";
 
 export const EventTrackingConfig = (): JSX.Element => {
+  const [trackingSettings, setTrackingSettings] = React.useState(
+    Settings.lastEventTracking
+  );
   const [isAutoEventTrackingActive, setIsAutoEventTrackingActive] =
-    React.useState(false);
+    React.useState(Settings.isAutoEventTrackingActive);
 
   React.useEffect(() => {
-    setIsAutoEventTrackingActive(Settings.isAutoEventTrackingActive);
+    chrome.storage.sync.get("settings", ({ settings }) => {
+      setTrackingSettings(settings.lastEventTracking);
+    });
   }, []);
 
-  const handleSwitch = (value: boolean) => {
-    setIsAutoEventTrackingActive(value);
+  const updateIsAutoEventTrackingActive = (): void => {
     setSettings({
-      isAutoEventTrackingActive: value,
+      isAutoEventTrackingActive: !isAutoEventTrackingActive,
+    });
+    setIsAutoEventTrackingActive(!isAutoEventTrackingActive);
+  };
+
+  const updateSettings = (): void => {
+    setSettings({
+      lastEventTracking: trackingSettings,
+    });
+
+    createToast({
+      toastText: "Configurações salvas com sucesso!",
+      toastTitle: "Sucesso!",
+      variant: "success",
+      duration: 2,
     });
   };
 
   return (
-    <Switch
-      name="Ativar evento de tracking automático"
-      isChecked={isAutoEventTrackingActive}
-      onChange={handleSwitch}
-    />
+    <Block padding={0}>
+      <Switch
+        name="Ativar tracking automático"
+        isChecked={isAutoEventTrackingActive}
+        onChange={updateIsAutoEventTrackingActive}
+      />
+      <HorizontalStack marginTop={2}>
+        <BdsButton type="submit" variant="primary" onClick={updateSettings}>
+          Salvar
+        </BdsButton>
+      </HorizontalStack>
+    </Block>
   );
 };

@@ -14,6 +14,7 @@ export const Settings = {
   personalTags: DEFAULT_TAGS,
   isAutoTagActive: false,
   isAutoEventTrackingActive: false,
+  lastEventTracking: [],
 };
 
 export const mergeSettings = (newSettings: Partial<typeof Settings>): void => {
