@@ -22,6 +22,12 @@ export const updateTags = (blockId: string): void => {
   if (!blockId) return;
 
   const block = getBlockById(blockId);
+
+  // Se o bloco não for encontrado por qualquer motivo, interrompa a função.
+  if (!block) {
+    return;
+  }
+
   if (block.$tags) {
     const customTags = block.$tags.filter(isDifferentOfActionTag);
     block.$tags = customTags;
@@ -122,7 +128,6 @@ const createTag = (tag: Tag): BlipTag => {
     canChangeBackground: false,
   };
 };
-
 
 /**
  * Returns a tag given the action type

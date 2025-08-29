@@ -6,9 +6,11 @@ import {
   interceptFunction,
   getController,
   getInputAction,
+  getAllActions,
 } from '../../Utils';
 import {
   ENTERING_TRACKING_ACTION,
+  HTTP_REQUEST_TRACKING_ACTION,
   LEAVING_TRACKING_ACTIONS,
 } from './Constants';
 import { updateTags } from '../AutoTag/tagsHandler';
@@ -22,7 +24,7 @@ export class AutoEventTracking extends BaseFeature {
 
   constructor() {
     super();
-    this.previousBypassValue = false;
+    this.previousBypassValue = true;
   }
 
   public handle(): boolean {
@@ -32,25 +34,31 @@ export class AutoEventTracking extends BaseFeature {
     return true;
   }
 
+  private isBlipVariable(value: any): boolean {
+    return typeof value === 'string' && value.startsWith('{{') && value.endsWith('}}');
+  }
+
   private manageEventTrackings = (): void => {
-    const block = getEditingBlock();
-    if (!block) {
-      return;
-    }
+    setTimeout(() => {
+      const block = getEditingBlock();
+      if (!block) {
+        return;
+      }
 
-    const isNewBlock =
-      block.$enteringCustomActions.length === 0 &&
-      block.$leavingCustomActions.length === 0;
+      const isNewBlock =
+        block.$enteringCustomActions.length === 0 &&
+        block.$leavingCustomActions.length === 0;
 
-    if (isNewBlock) {
-      this.addEventTrackingsToBlock(block);
-      return;
-    }
+      if (isNewBlock) {
+        this.addEventTrackingsToBlock(block);
+      }
 
-    this.removeTrackingsOnInputRemoval(block);
+      this.manageInputTrackings(block);
+      this.manageHttpRequestTracking(block);
+    }, 100);
   };
 
-  private removeTrackingsOnInputRemoval = (block: BlipFlowBlock): void => {
+  private manageInputTrackings = (block: BlipFlowBlock): void => {
     const inputAction = getInputAction(block);
     const hasInput = inputAction && !inputAction.input.bypass;
 
@@ -68,8 +76,66 @@ export class AutoEventTracking extends BaseFeature {
     this.previousBypassValue = hasInput;
   };
 
+  private manageHttpRequestTracking = (block: BlipFlowBlock): void => {
+    const allActions = getAllActions(block);
+    const httpAction = allActions.find(action => action.type === 'ProcessHttp');
+
+    // Primeiro, remove qualquer tracking de API existente para evitar duplicatas.
+    block.$leavingCustomActions = block.$leavingCustomActions.filter(
+      (action) => !action.$title.startsWith('api|')
+    );
+
+    // Se a ação HTTP existir, adiciona o tracking novamente.
+    if (httpAction) {
+      this._addHttpRequestTracking(block, httpAction);
+    }
+    
+    // Atualiza as tags em ambos os casos (adição ou remoção)
+    updateTags(block.id);
+  }
+
+  private _addHttpRequestTracking = (block: BlipFlowBlock, httpAction: BlipAction): void => {
+    const extras = {};
+
+    // Variáveis de resposta
+    if (httpAction.settings.responseStatusVariable) {
+      extras['status'] = `{{${httpAction.settings.responseStatusVariable}}}`;
+    }
+    if (httpAction.settings.responseBodyVariable) {
+      extras['response'] = `{{${httpAction.settings.responseBodyVariable}}}`;
+    }
+
+    // Dados da requisição
+    if (httpAction.settings.uri) {
+      extras['uri'] = httpAction.settings.uri;
+    }
+    if (httpAction.settings.body) {
+      extras['body'] = this.isBlipVariable(httpAction.settings.body)
+        ? httpAction.settings.body
+        : JSON.stringify(httpAction.settings.body);
+    }
+    if (httpAction.settings.headers) {
+      extras['headers'] = JSON.stringify(httpAction.settings.headers);
+    }
+
+    const newTrackingAction: BlipAction = {
+      $id: uuid(),
+      $invalid: false,
+      $title: HTTP_REQUEST_TRACKING_ACTION.$title,
+      $typeOfContent: 'text',
+      type: 'TrackEvent',
+      conditions: [],
+      settings: {
+        ...HTTP_REQUEST_TRACKING_ACTION.settings,
+        extras: extras
+      }
+    };
+
+    block.$leavingCustomActions.push(newTrackingAction);
+  };
+
   private addEventTrackingsToBlock(block: BlipFlowBlock): void {
-    // Add entering tracking
+    // Adiciona tracking de entrada
     const enteringAction: BlipAction = {
       $id: uuid(),
       $invalid: false,
@@ -79,12 +145,11 @@ export class AutoEventTracking extends BaseFeature {
       conditions: [],
       settings: {
         ...ENTERING_TRACKING_ACTION.settings,
-        category: ENTERING_TRACKING_ACTION.settings.category
-      },
+      }
     };
     block.$enteringCustomActions.push(enteringAction);
 
-    // Add leaving trackings
+    // Adiciona trackings de saída
     LEAVING_TRACKING_ACTIONS.forEach((template) => {
       const leavingAction: BlipAction = {
         $id: uuid(),
@@ -95,9 +160,8 @@ export class AutoEventTracking extends BaseFeature {
         conditions: template.settings.conditions,
         settings: {
           ...template.settings,
-          category: template.settings.category,
-          extras: template.settings.extras,
-        },
+          extras: template.settings.extras
+        }
       };
       block.$leavingCustomActions.push(leavingAction);
     });

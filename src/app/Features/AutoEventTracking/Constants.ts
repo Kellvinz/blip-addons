@@ -40,7 +40,7 @@ export const LEAVING_TRACKING_ACTIONS: Partial<BlipAction>[] = [
         $title: 'inatividade|{{state.name}}',
         type: 'TrackEvent',
         settings: {
-            category: 'Inatividade|{{state.name}}',
+            category: 'inatividade|{{state.name}}',
             action: 'inatividade',
             conditions: [
                 {
@@ -52,4 +52,14 @@ export const LEAVING_TRACKING_ACTIONS: Partial<BlipAction>[] = [
         },
     },
 ];
+
+export const HTTP_REQUEST_TRACKING_ACTION: Partial<BlipAction> = {
+    $title: 'api|{{state.name}}',
+    type: 'TrackEvent',
+    settings: {
+        category: 'api|{{state.name}}',
+        action: 'api',
+        extras: {},
+    },
+};
 
