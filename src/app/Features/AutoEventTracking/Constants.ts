@@ -21,6 +21,7 @@ export const LEAVING_TRACKING_ACTIONS: Partial<BlipAction>[] = [
             extras: {
                 input: '{{input.content}}',
             },
+            conditions: [],
         },
     },
     {
@@ -32,6 +33,7 @@ export const LEAVING_TRACKING_ACTIONS: Partial<BlipAction>[] = [
             extras: {
                 input: '{{input.content}}',
             },
+            conditions: [],
         },
     },
     {
@@ -40,10 +42,13 @@ export const LEAVING_TRACKING_ACTIONS: Partial<BlipAction>[] = [
         settings: {
             category: 'Inatividade|{{state.name}}',
             action: 'inatividade',
-            conditions: {
-                comparision: 'notExists',
-                source: 'input',
-            },
+            conditions: [
+                {
+                    source: 'input',
+                    comparison: 'notExists',
+                },
+            ],
+            extras: {},
         },
     },
 ];

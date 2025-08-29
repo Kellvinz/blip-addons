@@ -220,6 +220,9 @@ export const getContrastColor = (color: any): string => {
   return yiq >= 128 ? '#000' : '#fff';
 };
 
+export const getInputAction = (block: BlipFlowBlock): any =>
+  block.$contentActions.find((contentAction) => contentAction['input']);
+
 export const createOverlay = (): HTMLElement => {
   let overlay = document.getElementById(OVERLAY_ID);
 
