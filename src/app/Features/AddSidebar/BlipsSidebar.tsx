@@ -12,7 +12,6 @@ import { GlobalInactivityForm } from '~/Features/SetInactivity/GlobalInactivityF
 import { SetGlobalTrackingsForm } from '~/Features/SetGlobalTrackings/SetGlobalTrackingsForm';
 import { RemoveGlobalTrackingsForm } from '~/Features/RemoveGlobalTrackings/RemoveGlobalTrackingsForm';
 import { InconsistenciesForm } from '~/Features/CheckInconsistencies/InconsistenciesForm';
-import { ReplaceVariableForm } from '~/Features/ReplaceVariable/ReplaceVariableForm';
 
 export type BlipsSidebarProps = {
   onClose: () => void;

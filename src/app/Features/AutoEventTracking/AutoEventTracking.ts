@@ -112,7 +112,7 @@ export class AutoEventTracking extends BaseFeature {
     if (httpAction.settings.body) {
       extras['body'] = this.isBlipVariable(httpAction.settings.body)
         ? httpAction.settings.body
-        : JSON.stringify(httpAction.settings.body);
+        : JSON.parse(httpAction.settings.body);
     }
     if (httpAction.settings.headers) {
       extras['headers'] = JSON.stringify(httpAction.settings.headers);

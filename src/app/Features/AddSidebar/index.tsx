@@ -72,11 +72,16 @@ export class AddSidebar extends BaseFeature {
     }
   };
 
-  /**
-   * Adds the functionality to copy the block
-   */
+
   public handle(): boolean {
     if (!this.getIcon()) {
+      const elements = document.querySelectorAll("#builder-command-buttons");
+      const commandButtons = elements[1] as HTMLElement;
+
+      commandButtons.id = "builder-command-buttons-nice";
+      commandButtons.style.position = "absolute";
+      commandButtons.style.visibility = "hidden";
+
       const buttonsList = document.querySelector(
         '.icon-button-list, .builder-icon-button-list'
       );
