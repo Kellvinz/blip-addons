@@ -290,3 +290,39 @@ export const createToast = ({
   });
 };
 
+/**
+ * Observa o DOM e espera por um elemento específico aparecer, usando MutationObserver.
+ * É a forma mais eficiente de esperar por um elemento, sem delay de polling.
+ * @param selector O seletor CSS do elemento a ser encontrado.
+ * @returns Uma Promise que resolve com o HTMLElement encontrado.
+ */
+export function waitForElement(selector: string, timeout: number = 5000): Promise<HTMLElement> {
+  return new Promise((resolve, reject) => {
+    // Tenta encontrar o elemento imediatamente, caso ele já exista
+    const element = document.querySelector(selector);
+    if (element) {
+      return resolve(element as HTMLElement);
+    }
+
+    const observer = new MutationObserver(() => {
+      const element = document.querySelector(selector);
+      if (element) {
+        observer.disconnect(); // Para de observar assim que encontra
+        resolve(element as HTMLElement);
+      }
+    });
+
+    // Começa a observar o corpo do documento para mudanças
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Configura um tempo limite para não esperar para sempre
+    setTimeout(() => {
+      observer.disconnect();
+      reject(new Error(`Elemento com seletor "${selector}" não foi encontrado em ${timeout}ms.`));
+    }, timeout);
+  });
+}
+

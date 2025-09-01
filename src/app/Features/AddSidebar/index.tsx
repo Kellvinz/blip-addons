@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { interceptFunction } from '~/Utils';
+import { interceptFunction, waitForElement } from '~/Utils';
 import { BaseFeature } from '../BaseFeature';
 import { BlipsButton } from './BlipAddonsButton';
 import { BlipsSidebar } from './BlipsSidebar';
@@ -72,29 +72,43 @@ export class AddSidebar extends BaseFeature {
     }
   };
 
-
-  public handle(): boolean {
-    if (!this.getIcon()) {
-      const elements = document.querySelectorAll("#builder-command-buttons");
-      const commandButtons = elements[1] as HTMLElement;
-
-      commandButtons.id = "builder-command-buttons-nice";
-      commandButtons.style.position = "absolute";
-      commandButtons.style.visibility = "hidden";
-
-      const buttonsList = document.querySelector(
-        '.icon-button-list, .builder-icon-button-list'
-      );
-      const blipsDiv = document.createElement('div');
-
-      blipsDiv.setAttribute('id', BLIPS_BUTTON_ID);
-      ReactDOM.render(<BlipsButton onClick={this.openSidebar} />, blipsDiv);
-      buttonsList.appendChild(blipsDiv);
-
-      return true;
+  public async handle(): Promise<boolean> {
+    if (this.getIcon()) {
+      return false; // Botão já foi adicionado, não faz nada.
     }
 
-    return false;
+    try {
+      // Define os seletores para os elementos que precisamos
+      const intrusoSelector = 'ng-include[src*="BuilderCommandButtonsSubmodule"] + ng-include[src*="BuilderCommandButtonsSubmodule"]';
+      const containerSelector = '.icon-button-list, .builder-icon-button-list';
+
+      console.log("Blip Addons: Aguardando elementos em paralelo...");
+
+      // Promise.all inicia as duas "buscas" ao mesmo tempo
+      const [elementoIntruso, containerDoBotao] = await Promise.all([
+        waitForElement(intrusoSelector),
+        waitForElement(containerSelector)
+      ]);
+
+      console.log("Blip Addons: Elementos encontrados! Manipulando o DOM...");
+
+      // Assim que AMBOS forem encontrados, executa o código:
+
+      // 1. Esconde o elemento duplicado
+      elementoIntruso.style.display = 'none';
+
+      // 2. Adiciona nosso botão
+      const blipsDiv = document.createElement('div');
+      blipsDiv.setAttribute('id', BLIPS_BUTTON_ID);
+      ReactDOM.render(<BlipsButton onClick={this.openSidebar} />, blipsDiv);
+      containerDoBotao.appendChild(blipsDiv);
+
+    } catch (error) {
+      console.error("Blip Addons: Não foi possível inicializar a barra de botões.", error);
+      return false;
+    }
+
+    return true;
   }
 
   /**
