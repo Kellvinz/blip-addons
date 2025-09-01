@@ -114,6 +114,7 @@ export type BlipAction = {
   conditions: BlipCondiction[];
   blockName?: string;
   type?: BlipActionType;
+  blipAddonsAutoScript?: boolean;
 };
 
 export type BlipContentAction = {

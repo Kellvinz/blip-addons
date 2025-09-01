@@ -12,4 +12,5 @@ export * from './RemoveGlobalTrackings';
 export * from './FilterBots';
 export * from './AutoTag';
 export * from './AutoEventTracking';
+export * from './AutoScript';
 //export * from './ReplaceVariable';
