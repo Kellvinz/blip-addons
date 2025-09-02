@@ -71,6 +71,7 @@ export class AutoScript extends BaseFeature {
 
                 if (menuOptions.length > 0) {
                     this.addAutoScriptToAction(block, menuOptions);
+                    updateTags(block.id);
                 }
 
                 if (initialActions.length !== block.$enteringCustomActions.length) {
