@@ -1,19 +1,21 @@
 import { BlipAction } from '../../types';
 
 export const AUTO_SCRIPT_ACTION: Partial<BlipAction> = {
-    $title: 'Set userInput',
+    $title: 'set menuOptionSelected',
     type: 'ExecuteScript',
     settings: {
         function: 'run',
-        source: `function run(input) {
-    try {
-        input = JSON.parse(input);
-    } catch (e) {
-        "N/A"
+        source: `function run(userInput) {
+    // Este padrão de regex será substituído dinamicamente
+    const regex = new RegExp('__REGEX_PATTERN__', 'i');
+    
+    if (regex.test(userInput)) {
+        return userInput;
     }
-    return input;
+    
+    return null;
 }`,
         inputVariables: ['input.content'],
-        outputVariable: 'userInput',
+        outputVariable: 'menuOptionSelected',
     },
 };

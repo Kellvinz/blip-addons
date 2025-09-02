@@ -23,15 +23,35 @@ export class AutoScript extends BaseFeature {
         return true;
     }
 
-    private hasQuickReplyOrMenu(block: BlipFlowBlock): boolean {
+    private getMenuOptions(block: BlipFlowBlock): string[] {
         if (!Array.isArray(block.$contentActions)) {
-            return false;
+            return [];
         }
 
-        return block.$contentActions.some((contentAction) => {
-            const contentType = contentAction?.action?.$typeOfContent;
-            return contentType === 'select' || contentType === 'select-immediate';
-        });
+        const options: string[] = [];
+        for (const contentAction of block.$contentActions) {
+            const action = contentAction?.action;
+            if (!action) continue;
+
+            const isMenu =
+                action.$typeOfContent === 'select' ||
+                action.$typeOfContent === 'select-immediate';
+
+            if (isMenu) {
+                const content = action.settings?.content;
+                if (content?.options) {
+                    for (const option of content.options) {
+                        // Handle both menu ({ text: '...' }) and quick reply ({ label: { value: '...' }})
+                        const optionText = option?.text || option?.label?.value;
+                        if (optionText) {
+                            options.push(optionText);
+                        }
+                    }
+                }
+            }
+        }
+
+        return options;
     }
 
     private manageAutoScript = (): void => {
@@ -42,24 +62,39 @@ export class AutoScript extends BaseFeature {
                     return;
                 }
 
-                const shouldHaveScript = this.hasQuickReplyOrMenu(block);
-                
-                const hasOurScript = block.$enteringCustomActions.some(
-                    (action) => action[SCRIPT_ID_PROPERTY]
+                const initialActions = [...block.$enteringCustomActions];
+                block.$enteringCustomActions = initialActions.filter(
+                    (action) => !action[SCRIPT_ID_PROPERTY]
                 );
 
-                if (shouldHaveScript && !hasOurScript) {
-                    this.addAutoScriptToAction(block);
-                } else if (!shouldHaveScript && hasOurScript) {
-                    this.removeAutoScriptFromAction(block);
+                const menuOptions = this.getMenuOptions(block);
+
+                if (menuOptions.length > 0) {
+                    this.addAutoScriptToAction(block, menuOptions);
                 }
+
+                if (initialActions.length !== block.$enteringCustomActions.length) {
+                    updateTags(block.id);
+                    const controller = getController();
+                    if (controller) {
+                        controller.$timeout(() => { });
+                    }
+                }
+
             }, 100);
         } catch (error) {
             console.error("Blip Addons - Error in AutoScript feature:", error);
         }
     };
 
-    private addAutoScriptToAction(block: BlipFlowBlock): void {
+    private addAutoScriptToAction(block: BlipFlowBlock, menuOptions: string[]): void {
+        const regexPattern = `^(${menuOptions.map(o => o.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$`;
+        
+        const scriptSource = AUTO_SCRIPT_ACTION.settings.source.replace(
+            '__REGEX_PATTERN__',
+            regexPattern
+        );
+
         const newScriptAction: BlipAction = {
             $id: uuid(),
             $invalid: false,
@@ -69,28 +104,11 @@ export class AutoScript extends BaseFeature {
             conditions: [],
             settings: {
                 ...AUTO_SCRIPT_ACTION.settings,
+                source: scriptSource,
             },
             [SCRIPT_ID_PROPERTY]: true,
         };
 
         block.$enteringCustomActions.unshift(newScriptAction);
-        updateTags(block.id);
-
-        const controller = getController();
-        if (controller) {
-            controller.$timeout(() => { });
-        }
-    }
-
-    private removeAutoScriptFromAction(block: BlipFlowBlock): void {
-        block.$enteringCustomActions = block.$enteringCustomActions.filter(
-            (action) => !action[SCRIPT_ID_PROPERTY]
-        );
-        updateTags(block.id);
-
-        const controller = getController();
-        if (controller) {
-            controller.$timeout(() => { });
-        }
     }
 }
