@@ -24,7 +24,7 @@ export class FilterBots extends BaseFeature {
       ReactDOM.render(
         <Filter
           onFilter={(
-            environments: (keyof typeof Constants)[],
+            environment: keyof typeof Constants, 
             search: string
           ) => {
             const searchPatterns = search
@@ -32,7 +32,7 @@ export class FilterBots extends BaseFeature {
               .filter((s) => !!s)
               .map((s) => new RegExp(s, 'i'));
 
-            const envPatterns = environments.flatMap((e) => this.getRegexes(e));
+            const envPatterns = this.getRegexes(environment);
 
             this.allContacts.forEach((c) => {
               const name = c.querySelector('.contact-name').textContent;

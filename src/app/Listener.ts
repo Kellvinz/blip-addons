@@ -13,6 +13,7 @@ import type {
 
 const Commands = Object.values(RawCommands);
 const Features = Object.values(RawFeatures);
+
 const sendMessage = (message: any): void => window.postMessage(message, '*');
 
 // Sends handshake to extension
