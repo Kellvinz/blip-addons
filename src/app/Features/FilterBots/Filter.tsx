@@ -6,14 +6,14 @@ import { Circle } from '@components/Circle';
 import { Flex } from '@components/Flex';
 
 export type FilterProps = {
-  onChange: (...args: any[]) => any;
+  onFilter: (...args: any[]) => any;
 };
 
-export const Filter = ({ onChange }: FilterProps): JSX.Element => {
+export const Filter = ({ onFilter }: FilterProps): JSX.Element => {
   return (
     <Flex marginLeft={18}>
       <BdsSelect
-        onBdsChange={onChange}
+        onBdsChange={onFilter}
         label="Filtrar por ambiente"
         icon="filter"
         value={Constants.ALL}

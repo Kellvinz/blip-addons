@@ -9,7 +9,7 @@ export * from './SetGlobalTrackings';
 export * from './Snippets';
 export * from './EditBlocks';
 export * from './RemoveGlobalTrackings';
-export * from './FilterBots';
+export * from './FilterBots/FilterBots';
 export * from './AutoTag';
 export * from './AutoEventTracking';
 export * from './AutoScript';
