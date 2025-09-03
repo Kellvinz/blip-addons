@@ -77,24 +77,35 @@ export class AutoEventTracking extends BaseFeature {
   };
 
   private manageHttpRequestTracking = (block: BlipFlowBlock): void => {
-    const allActions = getAllActions(block);
-    const httpAction = allActions.find(action => action.type === 'ProcessHttp');
+    // Sincroniza os trackings para as ações de entrada
+    block.$enteringCustomActions = this._syncHttpTrackingsForScope(block.$enteringCustomActions);
 
-    // Primeiro, remove qualquer tracking de API existente para evitar duplicatas.
-    block.$leavingCustomActions = block.$leavingCustomActions.filter(
-      (action) => !action.$title.startsWith('api|')
-    );
-
-    // Se a ação HTTP existir, adiciona o tracking novamente.
-    if (httpAction) {
-      this._addHttpRequestTracking(block, httpAction);
-    }
+    // Sincroniza os trackings para as ações de saída
+    block.$leavingCustomActions = this._syncHttpTrackingsForScope(block.$leavingCustomActions);
     
     // Atualiza as tags em ambos os casos (adição ou remoção)
     updateTags(block.id);
   }
 
-  private _addHttpRequestTracking = (block: BlipFlowBlock, httpAction: BlipAction): void => {
+  private _syncHttpTrackingsForScope(actions: BlipAction[]): BlipAction[] {
+    // Encontra a ação de requisição HTTP neste escopo
+    const httpAction = actions.find(action => action.type === 'ProcessHttp');
+
+    // Filtra a lista para remover qualquer tracking de API existente neste escopo
+    let updatedActions = actions.filter(
+      (action) => !action.$title.startsWith('api|')
+    );
+
+    // Se uma ação HTTP existir neste escopo, cria e adiciona o tracking de volta
+    if (httpAction) {
+      const newTracking = this._createHttpRequestTracking(httpAction);
+      updatedActions.push(newTracking);
+    }
+
+    return updatedActions;
+  }
+
+  private _createHttpRequestTracking = (httpAction: BlipAction): BlipAction => {
     const extras = {};
 
     // Variáveis de resposta
@@ -131,7 +142,7 @@ export class AutoEventTracking extends BaseFeature {
       }
     };
 
-    block.$leavingCustomActions.push(newTrackingAction);
+    return newTrackingAction;
   };
 
   private addEventTrackingsToBlock(block: BlipFlowBlock): void {
