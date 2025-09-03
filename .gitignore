@@ -1,7 +1,10 @@
 .DS_Store
 node_modules/
+dist/
 config/
 v17/
 .Vs
 yarn-error.log
 .idea/
+.vscode/
+.github/
