@@ -3,24 +3,26 @@ import { BdsButton,BdsTypo } from 'blip-ds/dist/blip-ds-react';
 import { Paragraph, Block, Switch, Flex } from '~/Components';
 import { TrackingsInconsistencies } from '@features/CheckInconsistencies/Trackings';
 import { CheckLoopsOnFlow } from '@features/CheckInconsistencies/LoopsAndMaxBlocks';
-import { TautologyInconsistencies } from '@features/CheckInconsistencies/Tautology';
+import { CheckScriptsTryCatch } from '@features/CheckInconsistencies/TryCatch';
 import { showSuccessToast, showWarningToast } from '~/Utils';
 
 const MAX_STATES_WITHOUT_INPUT = 35;
 
 export const InconsistenciesForm = (): JSX.Element => {
-  const [tautologyInconsistenceMessage, setTautologyMessage] = React.useState();
+  const [scriptInconsistenceMessage, setScriptInconsistenceMessage] = React.useState();
   const [loopBlocksMessage, setLoopBlocksMessage] = React.useState();
-  const [trackingInconsistenceMessage, setTrackingInconsistenceMessage] =
-    React.useState();
+  const [trackingInconsistenceMessage, setTrackingInconsistenceMessage] = React.useState();
   const [isLoopCheckEnabled, setIsLoopCheckEnabled] = React.useState(true);
   const [isTrackingCheckEnabled, setIsTrackingCheckEnabled] = React.useState(true);
-  const [isTautologyCheckEnabled, setIsTautologyCheckEnabled] = React.useState(true);
+  const [isScriptCheckEnabled, setIsScriptCheckEnabled] = React.useState(true);
 
   /**
    * Runs the 'CheckInconsistencies' fature, thus check for Inconsistencies on the flow
    */
-  const handleInconsistencies = (): void => {
+  const handleInconsistencies = async (): Promise<void> => {
+    setLoopBlocksMessage(undefined);
+    setTrackingInconsistenceMessage(undefined);
+    setScriptInconsistenceMessage(undefined);
 
     let loopCheck: any = {
       hasInconsistencies: false,
@@ -32,7 +34,7 @@ export const InconsistenciesForm = (): JSX.Element => {
       message: ''
     };
 
-    let tautologyCheck: any = {
+    let scriptCheck: any = {
       hasInconsistencies: false,
       message: ''
     };
@@ -47,15 +49,15 @@ export const InconsistenciesForm = (): JSX.Element => {
       setTrackingInconsistenceMessage(trackingCheck.message);
     }
 
-    if(isTautologyCheckEnabled){
-      tautologyCheck = new TautologyInconsistencies().handle(false);
-      setTautologyMessage(tautologyCheck.message);
+    if(isScriptCheckEnabled){
+      scriptCheck = await new CheckScriptsTryCatch().handle(false);
+      setScriptInconsistenceMessage(scriptCheck.message);
     }
 
     if (
       loopCheck?.hasInconsistencies ||
       trackingCheck?.hasInconsistencies ||
-      tautologyCheck?.hasInconsistencies
+      scriptCheck?.hasInconsistencies
     ) {
       showWarningToast('Foi encontrada alguma inconsistência no fluxo.');
     } else {
@@ -79,7 +81,7 @@ export const InconsistenciesForm = (): JSX.Element => {
           entrada do usuário
         </li>
         <li>
-          Condições de saída de blocos ou de execução de ações com tautologia
+          Scripts que não possuem tratamento de erro (try/catch)
         </li>
       </ul>
 
@@ -113,14 +115,14 @@ export const InconsistenciesForm = (): JSX.Element => {
 
       <Flex marginTop={2}>
           <Switch
-            isChecked={isTautologyCheckEnabled}
-            name="isTautologyCheckEnabled"
-            onChange={(e) => setIsTautologyCheckEnabled(e.target.checked)}
+            isChecked={isScriptCheckEnabled}
+            name="isScriptCheckEnabled"
+            onChange={(e) => setIsScriptCheckEnabled(e.target.checked)}
           />
 
           <Block marginLeft={2}>
             <BdsTypo bold="extra-bold" variant="fs-14">
-              Verificar tautologias
+              Verificar scripts sem try/catch
             </BdsTypo>
           </Block>
       </Flex>
@@ -139,7 +141,7 @@ export const InconsistenciesForm = (): JSX.Element => {
 
       <Block paddingY={1}>{trackingInconsistenceMessage}</Block>
 
-      <Block paddingY={1}>{tautologyInconsistenceMessage}</Block>
+      <Block paddingY={1}>{scriptInconsistenceMessage}</Block>
     </>
   );
 };
