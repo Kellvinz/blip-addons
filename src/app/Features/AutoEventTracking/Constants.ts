@@ -17,7 +17,7 @@ export const LEAVING_TRACKING_ACTIONS: Partial<BlipAction>[] = [
         type: 'TrackEvent',
         settings: {
             category: 'input|{{state.name}}',
-            action: 'selecao',
+            action: 'input',
             extras: {
                 input: '{{input.content}}',
             },
