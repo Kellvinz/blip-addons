@@ -57,13 +57,11 @@ export class CheckScriptsTryCatch extends BaseFeature {
   };
 
   private fixVoidableScripts = (blocks: BlipFlowBlock[]): void => {
-    console.log('--- Iniciando correção de scripts ---');
     for (const block of blocks) {
       const scriptActions = this.getScriptActions(block);
       for (const action of scriptActions) {
         const scriptContent = action.settings?.source;
         if (scriptContent && !this.scriptHasTryCatch(scriptContent)) {
-          console.log(`Corrigindo script no bloco "${block.$title}", ação "${action.$title}"`);
 
           // Encontra o corpo da função 'run'
           const bodyRegex = /function\s+run\s*\([^)]*\)\s*\{([\s\S]*)\}/;
@@ -83,7 +81,6 @@ export class CheckScriptsTryCatch extends BaseFeature {
         }
       }
     }
-    console.log('--- Correção de scripts finalizada ---');
   };
 
   private handleSubmit = (): void => {

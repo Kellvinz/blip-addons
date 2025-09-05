@@ -1,13 +1,13 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 
-import { BaseFeature } from '../BaseFeature';
-import * as Constants from './Constants';
-import { Filter } from './Filter';
-import { Settings } from '../../Settings';
+import { BaseFeature } from "../BaseFeature";
+import * as Constants from "./Constants";
+import { Filter } from "./Filter";
+import { Settings } from "../../Settings";
 
-const FILTER_ID = 'blip-addons-filter';
-const FILTER_CONTAINER = '.chatbots-subheader .flex:last-child';
+const FILTER_ID = "blip-addons-filter";
+const FILTER_CONTAINER = ".chatbots-subheader .flex:last-child";
 
 export class FilterBots extends BaseFeature {
   public static shouldAlwaysClean = true;
@@ -28,7 +28,7 @@ export class FilterBots extends BaseFeature {
 
   public get allContacts(): HTMLElement[] {
     return Array.from(
-      document.getElementsByTagName('contact')
+      document.getElementsByTagName("contact")
     ) as HTMLElement[];
   }
 
@@ -38,7 +38,7 @@ export class FilterBots extends BaseFeature {
 
   private getRegexes(environment: keyof typeof Constants): RegExp[] {
     const keywordsMap = {
-      [Constants.ALL]: [''],
+      [Constants.ALL]: [""],
       [Constants.PRD]: Settings.prodKey,
       [Constants.HMG]: Settings.hmgKey,
       [Constants.DEV]: Settings.devKey,
@@ -47,7 +47,7 @@ export class FilterBots extends BaseFeature {
 
     return keywordsMap[environment]
       .map((keyword) => keyword.trim())
-      .map((keyword) => new RegExp(`\\b${keyword}\\b`, 'i'));
+      .map((keyword) => new RegExp(`\\b${keyword}\\b`, "i"));
   }
 
   private handleChange = (e: any): void => {
@@ -56,53 +56,72 @@ export class FilterBots extends BaseFeature {
 
     for (const contact of contacts) {
       const contactName = (
-        contact.querySelector('.contact-name span') as HTMLElement
+        contact.querySelector(".contact-name span") as HTMLElement
       ).innerText;
 
       contact.style.display = this.matchesAny(contactName, regexes)
-        ? 'block'
-        : 'none';
+        ? "block"
+        : "none";
     }
   };
 
   private paintRouters(): void {
-    const color = '#80E3EB';
-    const contacts = this.allContacts
-    
+    // 1. Limpa a pintura de todos os cards antes de começar
+    this.cleanupStyles();
+
+    const color = "#80E3EB";
+    const contacts = this.allContacts;
+
     for (const contact of contacts) {
-      const contactCategory = contact.querySelector(
-        'bds-typo[data-test="chatbot-name"]'
-      ).innerHTML;
-      
-      const isRouter = contactCategory.startsWith('R');
-      if (isRouter) {
-        const contactCard = contact.querySelector('.card') as HTMLElement;
-  
-        if (contactCard) {
-          contactCard.style.backgroundColor = color;
-  
+      const contactCategoryElement = contact.querySelector(
+        'bds-typo[data-test="chatbot-template"]'
+      );
+
+      if (contactCategoryElement) {
+        const contactCategory = contactCategoryElement.innerHTML.trim();
+        const isRouter =
+          contactCategory === "Roteador" || contactCategory === "Router";
+
+        if (isRouter) {
+          const contactCard = contact.querySelector(".card") as HTMLElement;
+          if (contactCard) {
+            contactCard.style.backgroundColor = color;
+          }
         }
       }
     }
   }
 
-  public cleanup(): any {
-    const header = this.getHeader();
-    this.paintRouters();
+  private cleanupStyles(): void {
+    const contacts = this.allContacts;
+    for (const contact of contacts) {
+      const contactCard = contact.querySelector(".card") as HTMLElement;
+      if (contactCard) {
+        // Reseta a cor de fundo
+        contactCard.style.backgroundColor = "";
+      }
+    }
+  }
 
-    if (header) {
-      if (!this.hasFilter) {
-        const filter = document.createElement('div');
+  public cleanup(): void {
+    setTimeout(() => {
+      const header = this.getHeader();
+      this.paintRouters();
 
-        filter.id = FILTER_ID;
+      if (header) {
+        if (!this.hasFilter) {
+          const filter = document.createElement("div");
 
-        ReactDOM.render(<Filter onFilter={this.handleChange} />, filter);
-        header.appendChild(filter);
+          filter.id = FILTER_ID;
+
+          ReactDOM.render(<Filter onFilter={this.handleChange} />, filter);
+          header.appendChild(filter);
+        }
+
+        return true;
       }
 
-      return true;
-    }
-
-    return false;
+      return false;
+    }, 500);
   }
 }
