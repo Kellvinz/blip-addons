@@ -42,21 +42,21 @@ export class AutoEventTracking extends BaseFeature {
   }
 
   private manageEventTrackings = (): void => {
-    console.log('[AutoTracking] manageEventTrackings: Função acionada.');
+    
     setTimeout(() => {
       const block = getEditingBlock();
       if (!block) {
-        console.log('[AutoTracking] manageEventTrackings: Bloco não encontrado.');
+        
         return;
       }
-      console.log('[AutoTracking] manageEventTrackings: Bloco encontrado:', block.$title);
+      
 
       const isNewBlock =
         block.$enteringCustomActions.length === 0 &&
         block.$leavingCustomActions.length === 0;
 
       if (isNewBlock) {
-        console.log('[AutoTracking] manageEventTrackings: Bloco novo, adicionando trackings padrão.');
+        
         this.addEventTrackingsToBlock(block);
       }
 
@@ -84,7 +84,7 @@ export class AutoEventTracking extends BaseFeature {
   };
 
   private manageHttpRequestTracking = (block: BlipFlowBlock): void => {
-    console.log('[AutoTracking] manageHttpRequestTracking: Iniciando sincronização de trackings HTTP.');
+    
     // Sincroniza os trackings para as ações de entrada
     block.$enteringCustomActions = this._syncHttpTrackingsForScope(block.$enteringCustomActions, 'entrada');
 
@@ -96,10 +96,10 @@ export class AutoEventTracking extends BaseFeature {
   }
 
   private _syncHttpTrackingsForScope(actions: BlipAction[], scope: string): BlipAction[] {
-    console.log(`[AutoTracking] _syncHttpTrackingsForScope: Verificando escopo de ${scope}. Ações recebidas:`, actions);
+    
     // Encontra a ação de requisição HTTP neste escopo
     const httpAction = actions.find(action => action.type === 'ProcessHttp');
-    console.log(`[AutoTracking] _syncHttpTrackingsForScope: Ação HTTP encontrada no escopo de ${scope}?`, httpAction);
+    
 
     // Filtra a lista para remover qualquer tracking de API existente neste escopo
     let updatedActions = actions.filter(
@@ -108,16 +108,16 @@ export class AutoEventTracking extends BaseFeature {
 
     // Se uma ação HTTP existir neste escopo, cria e adiciona o tracking de volta
     if (httpAction) {
-      console.log(`[AutoTracking] _syncHttpTrackingsForScope: Criando tracking para a ação HTTP no escopo de ${scope}.`);
+      
       const newTracking = this._createHttpRequestTracking(httpAction);
       updatedActions.push(newTracking);
     }
-    console.log(`[AutoTracking] _syncHttpTrackingsForScope: Ações atualizadas para o escopo de ${scope}:`, updatedActions);
+    
     return updatedActions;
   }
 
   private _createHttpRequestTracking = (httpAction: BlipAction): BlipAction => {
-    console.log('[AutoTracking] _createHttpRequestTracking: Criando objeto de tracking.');
+    
     const extras = {};
 
     // Variáveis de resposta
@@ -144,7 +144,7 @@ export class AutoEventTracking extends BaseFeature {
     if (httpAction.settings.headers) {
       extras['headers'] = JSON.stringify(httpAction.settings.headers);
     }
-    console.log('[AutoTracking] _createHttpRequestTracking: Objeto "extras" montado:', extras);
+    
 
     const newTrackingAction: BlipAction = {
       $id: uuid(),
@@ -158,7 +158,7 @@ export class AutoEventTracking extends BaseFeature {
         extras: extras
       }
     };
-    console.log('[AutoTracking] _createHttpRequestTracking: Ação de tracking final criada:', newTrackingAction);
+    
     return newTrackingAction;
   };
 
