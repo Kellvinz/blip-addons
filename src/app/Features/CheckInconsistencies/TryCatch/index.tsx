@@ -64,10 +64,15 @@ export class CheckScriptsTryCatch extends BaseFeature {
         if (scriptContent && !this.scriptHasTryCatch(scriptContent)) {
 
           // Encontra o corpo da função 'run'
-          const bodyRegex = /function\s+run\s*\([^)]*\)\s*\{([\s\S]*)\}/;
-          const match = scriptContent.match(bodyRegex);
+          const functionRegex = /function\s+run\s*\([^)]*\)\s*\{([\s\S]*)\}/;
+          const arrowRegex = /const\s+run\s*=\s*\([^)]*\)\s*=>\s*\{([\s\S]*)\}/;
+          
+          let match = scriptContent.match(functionRegex);
 
-          if (match && match[1]) {
+          if (!match) {
+            match = scriptContent.match(arrowRegex);
+          }
+          if (match) {
             const functionBody = match[1].trim();
             
             // Envolve o corpo da função com try/catch

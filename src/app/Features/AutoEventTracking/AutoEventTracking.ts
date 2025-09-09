@@ -134,15 +134,14 @@ export class AutoEventTracking extends BaseFeature {
     }
 
     if (httpAction.settings.body) {
-      try {
-        extras['body'] = JSON.parse(httpAction.settings.body);
-      } catch (e) {
-        extras['body'] = httpAction.settings.body;
-      }
+      extras['body'] = this.containsBlipVariable(httpAction.settings.body)
+        ? httpAction.settings.body
+        : JSON.stringify(httpAction.settings.body);
     }
-    
     if (httpAction.settings.headers) {
-      extras['headers'] = JSON.stringify(httpAction.settings.headers);
+      extras['headers'] = this.containsBlipVariable(httpAction.settings.headers)
+        ? httpAction.settings.headers
+        : JSON.stringify(httpAction.settings.headers);
     }
     
 
