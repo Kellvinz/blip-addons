@@ -13,7 +13,8 @@ import {
   LEAVING_TRACKING_ACTIONS,
 } from './Constants';
 import { updateTags } from '../AutoTag/tagsHandler';
-import { BlipAction, BlipFlowBlock } from '../../types';
+import { BlipAction, BlipComparison, BlipCondiction, BlipFlowBlock, BlipSource } from '../../types';
+import { sources } from 'webpack';
 
 const OPEN_BUILDER_NODE_EVENT = 'debouncedEditState';
 
@@ -42,21 +43,20 @@ export class AutoEventTracking extends BaseFeature {
   }
 
   private manageEventTrackings = (): void => {
-    
+
     setTimeout(() => {
       const block = getEditingBlock();
       if (!block) {
-        
+
         return;
       }
-      
+
 
       const isNewBlock =
         block.$enteringCustomActions.length === 0 &&
         block.$leavingCustomActions.length === 0;
 
       if (isNewBlock) {
-        
         this.addEventTrackingsToBlock(block);
       }
 
@@ -84,22 +84,22 @@ export class AutoEventTracking extends BaseFeature {
   };
 
   private manageHttpRequestTracking = (block: BlipFlowBlock): void => {
-    
+
     // Sincroniza os trackings para as ações de entrada
     block.$enteringCustomActions = this._syncHttpTrackingsForScope(block.$enteringCustomActions, 'entrada');
 
     // Sincroniza os trackings para as ações de saída
     block.$leavingCustomActions = this._syncHttpTrackingsForScope(block.$leavingCustomActions, 'saída');
-    
+
     // Atualiza as tags em ambos os casos (adição ou remoção)
     updateTags(block.id);
   }
 
   private _syncHttpTrackingsForScope(actions: BlipAction[], scope: string): BlipAction[] {
-    
+
     // Encontra a ação de requisição HTTP neste escopo
     const httpAction = actions.find(action => action.type === 'ProcessHttp');
-    
+
 
     // Filtra a lista para remover qualquer tracking de API existente neste escopo
     let updatedActions = actions.filter(
@@ -108,16 +108,16 @@ export class AutoEventTracking extends BaseFeature {
 
     // Se uma ação HTTP existir neste escopo, cria e adiciona o tracking de volta
     if (httpAction) {
-      
+
       const newTracking = this._createHttpRequestTracking(httpAction);
       updatedActions.push(newTracking);
     }
-    
+
     return updatedActions;
   }
 
   private _createHttpRequestTracking = (httpAction: BlipAction): BlipAction => {
-    
+
     const extras = {};
 
     // Variáveis de resposta
@@ -143,7 +143,7 @@ export class AutoEventTracking extends BaseFeature {
         ? httpAction.settings.headers
         : JSON.stringify(httpAction.settings.headers);
     }
-    
+
 
     const newTrackingAction: BlipAction = {
       $id: uuid(),
@@ -157,12 +157,56 @@ export class AutoEventTracking extends BaseFeature {
         extras: extras
       }
     };
-    
+
     return newTrackingAction;
   };
 
+  private getMenuOptions(block: BlipFlowBlock): string[] {
+    if (!Array.isArray(block.$contentActions)) {
+      return [];
+    }
+
+    const options: string[] = [];
+    for (const contentAction of block.$contentActions) {
+      const action = contentAction?.action;
+      if (!action) continue;
+
+      const isMenu =
+        action.$typeOfContent === 'select' ||
+        action.$typeOfContent === 'select-immediate';
+
+      if (isMenu) {
+        const content = action.settings?.content;
+        if (content?.options) {
+          for (const option of content.options) {
+            // Handle both menu ({ text: '...' }) and quick reply ({ label: { value: '...' }})
+            const optionText = option?.text || option?.label?.value;
+            if (optionText) {
+              options.push(optionText);
+            }
+          }
+        }
+      }
+    }
+
+    return options;
+  }
+
   private addEventTrackingsToBlock(block: BlipFlowBlock): void {
-    // Adiciona tracking de entrada
+
+    const menuOptions = this.getMenuOptions(block);
+    const inputConditions: BlipCondiction[] = menuOptions.length > 0
+      ? [{
+        comparison: 'equals' as BlipComparison,
+        source: 'input' as BlipSource,
+        values: menuOptions
+      }]
+      : [];
+    const unexpectedConditions = menuOptions.length > 0
+      ? menuOptions.map(opt => ({ comparison: 'notEquals' as BlipComparison, source: 'input' as BlipSource, values: [opt] }))
+      : [{ comparison: 'notExists' as BlipComparison, source: 'input' as BlipSource, values: [] }];
+
+    // Adiciona tracking de entrada 
     const enteringAction: BlipAction = {
       $id: uuid(),
       $invalid: false,
@@ -176,15 +220,24 @@ export class AutoEventTracking extends BaseFeature {
     };
     block.$enteringCustomActions.push(enteringAction);
 
-    // Adiciona trackings de saída
+    // Adiciona trackings de saída com condições específicas
     LEAVING_TRACKING_ACTIONS.forEach((template) => {
+      let conditions: BlipCondiction[] = [];
+      if (template.$title?.startsWith('input|')) {
+        conditions = inputConditions;
+      } else if (template.$title?.startsWith('inesperado|')) {
+        conditions = unexpectedConditions;
+      } else if (template.$title?.startsWith('inatividade|')) {
+        conditions = [{ comparison: 'notExists' as BlipComparison, source: 'input' as BlipSource, values: [] }];
+      }
+
       const leavingAction: BlipAction = {
         $id: uuid(),
         $invalid: false,
         $title: template.$title,
         $typeOfContent: 'text',
         type: 'TrackEvent',
-        conditions: template.settings.conditions,
+        conditions,
         settings: {
           ...template.settings,
           extras: template.settings.extras
@@ -197,7 +250,7 @@ export class AutoEventTracking extends BaseFeature {
 
     const controller = getController();
     if (controller) {
-      controller.$timeout(() => {});
+      controller.$timeout(() => { });
     }
   }
 }
