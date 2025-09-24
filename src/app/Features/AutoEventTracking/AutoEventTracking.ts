@@ -14,7 +14,6 @@ import {
 } from './Constants';
 import { updateTags } from '../AutoTag/tagsHandler';
 import { BlipAction, BlipComparison, BlipCondiction, BlipFlowBlock, BlipSource } from '../../types';
-import { sources } from 'webpack';
 
 const OPEN_BUILDER_NODE_EVENT = 'debouncedEditState';
 

@@ -41,7 +41,6 @@ export class AutoScript extends BaseFeature {
                 const content = action.settings?.content;
                 if (content?.options) {
                     for (const option of content.options) {
-                        // Handle both menu ({ text: '...' }) and quick reply ({ label: { value: '...' }})
                         const optionText = option?.text || option?.label?.value;
                         if (optionText) {
                             options.push(optionText);
@@ -62,24 +61,43 @@ export class AutoScript extends BaseFeature {
                     return;
                 }
 
-                const initialActions = [...block.$enteringCustomActions];
-                block.$enteringCustomActions = initialActions.filter(
-                    (action) => !action[SCRIPT_ID_PROPERTY]
-                );
-
-                const menuOptions = this.getMenuOptions(block);
-
-                if (menuOptions.length > 0) {
-                    this.addAutoScriptToAction(block, menuOptions);
-                    updateTags(block.id);
+                if (!block.addonsSettings) {
+                    block.addonsSettings = {};
                 }
 
-                if (initialActions.length !== block.$enteringCustomActions.length) {
-                    updateTags(block.id);
-                    const controller = getController();
-                    if (controller) {
-                        controller.$timeout(() => { });
+                const menuOptions = this.getMenuOptions(block);
+                const hasAutoScript = block.$enteringCustomActions.some(
+                    (action) => action[SCRIPT_ID_PROPERTY]
+                );
+
+                if (menuOptions.length > 0) {
+                    if (block.addonsSettings.autoScriptDeleted) {
+                        return;
                     }
+                    if (!hasAutoScript) {
+                        this.addAutoScriptToAction(block, menuOptions);
+                        updateTags(block.id);
+                        const controller = getController();
+                        if (controller) {
+                            controller.$timeout(() => { });
+                        }
+                    }
+                } else {
+                    if (hasAutoScript) {
+                        block.$enteringCustomActions = block.$enteringCustomActions.filter(
+                            (action) => !action[SCRIPT_ID_PROPERTY]
+                        );
+                        delete block.addonsSettings.autoScriptDeleted; 
+                        updateTags(block.id);
+                        const controller = getController();
+                        if (controller) {
+                            controller.$timeout(() => { });
+                        }
+                    }
+                }
+
+                if (hasAutoScript && menuOptions.length === 0) {
+                    block.addonsSettings.autoScriptDeleted = true;
                 }
 
             }, 100);
