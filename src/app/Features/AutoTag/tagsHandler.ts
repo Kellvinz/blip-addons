@@ -88,7 +88,8 @@ const setTagForBlockMessages = (block: BlipFlowBlock): void => {
  */
 const setTagForUserInput = (block: BlipFlowBlock): void => {
   const inputAction = getInputAction(block);
-  const hasInputOnBlock = !inputAction.input.bypass;
+  
+  const hasInputOnBlock = inputAction && inputAction.input && !inputAction.input.bypass;
 
   if (hasInputOnBlock) {
     setTag(block, USER_INPUT_TYPE);

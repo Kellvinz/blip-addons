@@ -41,6 +41,7 @@ export class AutoScript extends BaseFeature {
                 const content = action.settings?.content;
                 if (content?.options) {
                     for (const option of content.options) {
+                        // Handle both menu ({ text: '...' }) and quick reply ({ label: { value: '...' }})
                         const optionText = option?.text || option?.label?.value;
                         if (optionText) {
                             options.push(optionText);
@@ -65,39 +66,44 @@ export class AutoScript extends BaseFeature {
                     block.addonsSettings = {};
                 }
 
-                const menuOptions = this.getMenuOptions(block);
-                const hasAutoScript = block.$enteringCustomActions.some(
-                    (action) => action[SCRIPT_ID_PROPERTY]
+                const initialActions = [...block.$leavingCustomActions];
+                
+                // Remove apenas nossos scripts automáticos
+                block.$leavingCustomActions = initialActions.filter(
+                    (action) => !action[SCRIPT_ID_PROPERTY]
                 );
 
-                if (menuOptions.length > 0) {
-                    if (block.addonsSettings.autoScriptDeleted) {
-                        return;
-                    }
-                    if (!hasAutoScript) {
-                        this.addAutoScriptToAction(block, menuOptions);
-                        updateTags(block.id);
-                        const controller = getController();
-                        if (controller) {
-                            controller.$timeout(() => { });
-                        }
-                    }
-                } else {
-                    if (hasAutoScript) {
-                        block.$enteringCustomActions = block.$enteringCustomActions.filter(
-                            (action) => !action[SCRIPT_ID_PROPERTY]
-                        );
-                        delete block.addonsSettings.autoScriptDeleted; 
-                        updateTags(block.id);
-                        const controller = getController();
-                        if (controller) {
-                            controller.$timeout(() => { });
-                        }
+                const menuOptions = this.getMenuOptions(block);
+
+                // Detecta se o script foi removido manualmente comparando com estado anterior
+                if (menuOptions.length > 0 && !block.addonsSettings.autoScriptDeleted) {
+                    const shouldHaveScript = !block.addonsSettings.hasDetectedManualRemoval;
+                    const currentlyHasScript = initialActions.some(action => action[SCRIPT_ID_PROPERTY]);
+                    
+                    // Se deveria ter script mas não tem, e já passou da primeira verificação
+                    if (block.addonsSettings.scriptWasAdded && !currentlyHasScript) {
+                        block.addonsSettings.autoScriptDeleted = true;
                     }
                 }
 
-                if (hasAutoScript && menuOptions.length === 0) {
-                    block.addonsSettings.autoScriptDeleted = true;
+                // Só adiciona o script se há opções de menu E não foi marcado como deletado
+                if (menuOptions.length > 0 && !block.addonsSettings.autoScriptDeleted) {
+                    this.addAutoScriptToAction(block, menuOptions);
+                    block.addonsSettings.scriptWasAdded = true;
+                    updateTags(block.id);
+                }
+
+                // Se não há mais opções de menu, limpa a flag de deletado
+                if (menuOptions.length === 0) {
+                    delete block.addonsSettings.autoScriptDeleted;
+                }
+
+                if (initialActions.length !== block.$leavingCustomActions.length) {
+                    updateTags(block.id);
+                    const controller = getController();
+                    if (controller) {
+                        controller.$timeout(() => { });
+                    }
                 }
 
             }, 100);
@@ -128,6 +134,6 @@ export class AutoScript extends BaseFeature {
             [SCRIPT_ID_PROPERTY]: true,
         };
 
-        block.$enteringCustomActions.unshift(newScriptAction);
+        block.$leavingCustomActions.unshift(newScriptAction);
     }
 }

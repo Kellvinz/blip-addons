@@ -66,8 +66,9 @@ export class AutoEventTracking extends BaseFeature {
 
   private manageInputTrackings = (block: BlipFlowBlock): void => {
     const inputAction = getInputAction(block);
-    const hasInput = inputAction && !inputAction.input.bypass;
+    const hasInput = inputAction && inputAction.input && !inputAction.input.bypass;
 
+    // Se antes tinha input mas agora não tem, remove os trackings relacionados
     if (this.previousBypassValue && !hasInput) {
       const trackingsToRemove = ['input', 'inesperado', 'inatividade'];
 
@@ -77,6 +78,16 @@ export class AutoEventTracking extends BaseFeature {
           return !trackingsToRemove.includes(trackingName);
         }
       );
+    }
+    
+    // Se antes não tinha input mas agora tem, adiciona os trackings relacionados
+    else if (!this.previousBypassValue && hasInput) {
+      this.addInputTrackingsToBlock(block);
+    }
+    
+    // Se continua tendo input, verifica se precisa atualizar os trackings (mudança no conteúdo do menu)
+    else if (this.previousBypassValue && hasInput) {
+      this.updateInputTrackingsContent(block);
     }
 
     this.previousBypassValue = hasInput;
@@ -192,6 +203,9 @@ export class AutoEventTracking extends BaseFeature {
   }
 
   private addEventTrackingsToBlock(block: BlipFlowBlock): void {
+    // Verifica se o bloco tem input válido
+    const inputAction = getInputAction(block);
+    const hasInput = inputAction && inputAction.input && !inputAction.input.bypass;
 
     const menuOptions = this.getMenuOptions(block);
     const inputConditions: BlipCondiction[] = menuOptions.length > 0
@@ -203,7 +217,7 @@ export class AutoEventTracking extends BaseFeature {
       : [];
     const unexpectedConditions = menuOptions.length > 0
       ? menuOptions.map(opt => ({ comparison: 'notEquals' as BlipComparison, source: 'input' as BlipSource, values: [opt] }))
-      : [{ comparison: 'notExists' as BlipComparison, source: 'input' as BlipSource, values: [] }];
+      : [];
 
     // Adiciona tracking de entrada 
     const enteringAction: BlipAction = {
@@ -219,9 +233,18 @@ export class AutoEventTracking extends BaseFeature {
     };
     block.$enteringCustomActions.push(enteringAction);
 
-    // Adiciona trackings de saída com condições específicas
+    // Adiciona trackings de saída com condições específicas - mas só os relacionados ao input se houver input
     LEAVING_TRACKING_ACTIONS.forEach((template) => {
       let conditions: BlipCondiction[] = [];
+      const isInputRelated = template.$title?.startsWith('input|') || 
+                            template.$title?.startsWith('inesperado|') || 
+                            template.$title?.startsWith('inatividade|');
+      
+      // Se é relacionado ao input mas não há input válido, não adiciona o tracking
+      if (isInputRelated && !hasInput) {
+        return;
+      }
+      
       if (template.$title?.startsWith('input|')) {
         conditions = inputConditions;
       } else if (template.$title?.startsWith('inesperado|')) {
@@ -251,5 +274,71 @@ export class AutoEventTracking extends BaseFeature {
     if (controller) {
       controller.$timeout(() => { });
     }
+  }
+
+  private addInputTrackingsToBlock(block: BlipFlowBlock): void {
+    const menuOptions = this.getMenuOptions(block);
+    const inputConditions: BlipCondiction[] = menuOptions.length > 0
+      ? [{
+        comparison: 'equals' as BlipComparison,
+        source: 'input' as BlipSource,
+        values: menuOptions
+      }]
+      : [];
+    const unexpectedConditions = menuOptions.length > 0
+      ? menuOptions.map(opt => ({ comparison: 'notEquals' as BlipComparison, source: 'input' as BlipSource, values: [opt] }))
+      : [];
+
+    // Adiciona apenas trackings de saída relacionados ao input
+    LEAVING_TRACKING_ACTIONS.forEach((template) => {
+      const isInputRelated = template.$title?.startsWith('input|') || 
+                            template.$title?.startsWith('inesperado|') || 
+                            template.$title?.startsWith('inatividade|');
+      
+      // Só adiciona se for relacionado ao input
+      if (!isInputRelated) {
+        return;
+      }
+
+      let conditions: BlipCondiction[] = [];
+      if (template.$title?.startsWith('input|')) {
+        conditions = inputConditions;
+      } else if (template.$title?.startsWith('inesperado|')) {
+        conditions = unexpectedConditions;
+      } else if (template.$title?.startsWith('inatividade|')) {
+        conditions = [{ comparison: 'notExists' as BlipComparison, source: 'input' as BlipSource, values: [] }];
+      }
+
+      const leavingAction: BlipAction = {
+        $id: uuid(),
+        $invalid: false,
+        $title: template.$title,
+        $typeOfContent: 'text',
+        type: 'TrackEvent',
+        conditions,
+        settings: {
+          ...template.settings,
+          extras: template.settings.extras
+        }
+      };
+      block.$leavingCustomActions.push(leavingAction);
+    });
+
+    updateTags(block.id);
+  }
+
+  private updateInputTrackingsContent(block: BlipFlowBlock): void {
+    // Remove os trackings relacionados ao input existentes
+    const trackingsToRemove = ['input', 'inesperado', 'inatividade'];
+    
+    block.$leavingCustomActions = block.$leavingCustomActions.filter(
+      (action: BlipAction) => {
+        const trackingName = action.$title.split('|')[0];
+        return !trackingsToRemove.includes(trackingName);
+      }
+    );
+
+    // Adiciona os trackings novamente com o conteúdo atualizado
+    this.addInputTrackingsToBlock(block);
   }
 }
